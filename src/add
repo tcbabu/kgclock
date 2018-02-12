@@ -1,0 +1,29 @@
+    case 2: 
+      ret=0;
+      if(!setnotify(Tmp)) break;
+    case 1: 
+#if 1
+      Nitems=GetActionsCount();
+      pt = (char **)malloc(sizeof(char *)*(Nitems+1));
+      for(j=0;j<Nitems;j++) pt[j]=(char *)malloc(50);
+      pt[Nitems]=NULL;
+      GetActionsDisplay(pt);
+      ShowActionsDia(Tmp,pt);
+      j=0;
+      while(pt[j]!= NULL) free(pt[j++]);
+      free(pt);
+#endif
+      ret=0;
+      break;
+    case 3: 
+      Nitems=GetActionsCount();
+      pt = (char **)malloc(sizeof(char *)*(Nitems+1));
+      for(j=0;j<Nitems;j++) pt[j]=(char *)malloc(50);
+      pt[Nitems]=NULL;
+      GetActionsDisplay(pt);
+      DelActionDia(Tmp,&item,pt);
+      ret=0;
+      break;
+    case 4: 
+      ret=1;
+      break;

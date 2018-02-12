@@ -1,0 +1,13 @@
+D      //GUI dimensions xo,yo,xl,yl,lw,rw,tw,bw,df,bor_type,bkup
+678 199 386 427
+4 4 4 4
+0 1 1 0 1 0 0 0 0 0 1 0 0.170000 0 100 100 0
+//Pixmap Box
+p
+p     //code
+2 7  //x1,y1
+385 421 //x2,y2
+logo.png // XPM 
+-1   // background color 
+0 0 // border hide
+"AboutWidget1"

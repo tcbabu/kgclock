@@ -1,0 +1,20 @@
+# kgclock
+Desktop analog clock for X Window System
+
+kgclock also provides a alerts/notification system. Clock configuration
+and alerts system can accessed through the clock menu. Clock menu will
+pop-up on clicking at the clock center. The clock setup and atert system
+are self explanatory (hopefully). Clarifications if any can be obtained
+from the developer at tcbabu@gmail.com.
+
+For installation do the following
+
+install -m 755 -s  kgclock  /usr/bin/kgclock
+mkdir -p /usr/share/kgclock
+install -m 644  kgclock.png /usr/share/kgclock/kgclock.png
+install -m 644  beep.wav /usr/share/kgclock/
+install -m 644  bell.wav /usr/share/kgclock/
+install -m 644  kgclock.desktop /usr/share/applications
+
+
+An install script is also included.

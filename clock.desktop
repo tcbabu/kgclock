@@ -1,0 +1,12 @@
+[Desktop Entry]
+Exec=/usr/bin/kgclock
+X-DCOP-ServiceType=wait
+Name=Desktop Clock
+Comment=Analog Clock and Alarm and Notification Settings
+Keywords=calculation;arithmetic;scientific;financial;
+Type=Application
+Icon=/usr/share/kgclock/kgclock.png
+Terminal=false
+StartupNotify=false
+Categories=Accessories;Utility;Calculator;
+X-KDE-autostart-phase=1

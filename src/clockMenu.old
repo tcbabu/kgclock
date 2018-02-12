@@ -1,0 +1,165 @@
+#include "kulina.h"
+extern unsigned int Red,Green,Blue;
+extern int Dred,Dgreen,Dblue;
+extern int XM,YM,XL,YL;
+static int RetVal=0;
+int doEvents(int item);
+void *MakePixmapImage(int xl,int yl,int r,int g,int b,float fac);
+int  clockMenubrowser1callback(int item,int i,void *Tmp) {
+  DIA *D;DIE *B; 
+  int ret=1; 
+  D = ((DIALOG *)Tmp)->d;
+  B = D[i].e;
+  RetVal=item;
+//  printf("doEvents\n");
+  doEvents(item);
+  switch(item) {
+    case 1: 
+      break;
+  }
+  return ret;
+}
+int clockMenuinit(void *Tmp) {
+  int ret = 1;
+  DIALOG *D;
+  D = (DIALOG *)Tmp;
+  return ret;
+}
+int clockMenuCallBack(void *Tmp,void *tmp) {
+  int ret = 0;
+  DIALOG *D;
+  KBEVENT *kbe;
+  D = (DIALOG *)Tmp;
+  kbe = (KBEVENT *)tmp;
+  if(kbe->event ==1) {
+    if(kbe->button ==1) {
+      ret=1;
+    }
+  }
+  return ret;
+}
+int clockMenu( void *parent ,void *v0 ) {
+  int ret=1;
+  DIALOG D;
+  DIA d[3];
+  char *xpm0= (char *)MakePixmapImage(75,93,Red,Green,Blue,0.1);
+  DIP p0 = {
+    'p',
+    42,27, 
+    118,121,
+    (void *)xpm0,
+    -1, /* bkgr colour */
+      0,0,0.4 /* border hide */
+  };
+  strcpy(p0.Wid,(char *)"clockMenuWidget2");
+  char *menu0[]  = { 
+    (char *)"!c10Settings",
+//    (char *)"!c10!w45Notifications",
+    (char *)"!c10Alerts",
+    (char *)"!c03Stop Clock",
+    (char *)"!c10About",
+    NULL 
+  };
+  DIE e0 = { 
+    'e',
+    43,28,  
+    117,120,   
+    4,  
+    (int *)v0,
+    NULL,
+    menu0 ,
+    NULL,clockMenubrowser1callback /* *args, callback */
+    ,20,4,22,1,0,0,0
+  };
+  d[0].p = &p0;
+  d[1].e = &e0;
+  d[2].t = NULL;
+  kgInitUi(&D);
+  D.d = d;
+  D.bkup = 1; /* set to 1 for backup */
+  D.bor_type = 0;
+  D.df = 0;
+  D.tw = 4;
+  D.bw = 4;
+  D.lw = 4;
+  D.rw = 4;
+  D.xo = 309;   /* Position of Dialog */ 
+  D.yo = 63;
+  D.xl = 186;    /*  Length of Dialog */
+  D.yl = 172;    /*  Width  of Dialog */
+  D.xl = 100;    /*  Length of Dialog */
+  D.yl = 100;    /*  Width  of Dialog */
+  if(D.xl < XL) D.xl =XL;
+  if(D.yl < YL) D.yl =YL;
+  D.xo = XM- D.xl/2;
+  D.yo = YM- D.yl/2;
+  D.Initfun = clockMenuinit;    /*   init fuction for Dialog */
+  D.kbattn = 0;;    /*  1 for drawing keyborad attention */
+  D.butattn = 0;    /*  1 for drawing button attention */
+  D.fullscreen = 0;    /*  1 for for fullscreen mode */
+  D.Deco = 0;    /*  1 for Window Decorration */
+  D.transparency = 1.00000;    /*  float 1.0 for full transparency */
+  D.Newwin = 1;    /*  1 for new window not yet implemented */
+  D.DrawBkgr = 0;    /*  1 for drawing background */
+  D.Bkpixmap = NULL;    /*  background image */
+  D.Sticky = 1;    /*  1 for stickyness */
+  D.Resize =0;
+#if 1 
+  D.Callback = clockMenuCallBack;    /*  default callback */
+#else 
+  D.Callback = NULL;    
+#endif
+  D.Fixpos = 1;    /*  1 for Fixing Position */
+  D.NoTaskBar = 1;    /*  1 for not showing in task bar*/
+  D.StackPos = -1;    /* -1,0,1 for for Stack Position -1:below 0:normal 1:above*/
+  D.Shapexpm = NULL;    /*  PNG/jpeg file for window shape;Black color will not be drawn */
+  D.parent = parent;    /*  1 for not showing in task bar*/
+  D.pt = NULL;    /*  any data to be passed by user*/
+  strcpy(D.name,"Kulina Clock ver 1.2");    /*  Dialog name you may change */
+  if(D.fullscreen!=1) {    /*  if not fullscreen mode */
+     int xres,yres; 
+     int xl,yl;
+     kgDisplaySize(&xres,&yres); 
+     xl = p0.x2-p0.x1+1;
+     yl = p0.y2-p0.y1+1;
+     p0.x1 = (D.xl -xl)/2;
+     p0.y1 = (D.yl -yl)/2;
+     p0.x2 = p0.x1 +(xl-1);
+     p0.y2 = p0.y1 +(yl-1);
+     xl = e0.x2-e0.x1;
+     yl = e0.y2-e0.y1;
+     e0.x1 = p0.x1+1;
+     e0.y1 = p0.y1+1;
+     e0.x2 = e0.x1 +xl;
+     e0.y2 = e0.y1 +yl;
+     
+      // D.xo=D.yo=0; D.xl = xres-10; D.yl=yres-80;
+  }
+  else {    // for fullscreen
+     int xres,yres; 
+     kgDisplaySize(&xres,&yres); 
+     D.xo=D.yo=0; D.xl = xres; D.yl=yres;
+  }    /*  end of fullscreen mode */
+  if(D.parent != NULL) {
+    D.gc = ((DIALOG *)D.parent)->gc;
+  }
+  else kgColorTheme(&D,Red,Green,Blue);
+//  kgColorTheme(&D,230,230,230);    /*  set colors for gui*/
+//  ModifyclockMenuGc(&(D.gc));    /*  set colors for gui*/
+  D.SearchList=NULL;
+  Print_gui_data(&D,"/home/babu/clockMenu.rc");
+  ret= kgUi(&D);
+  kgFreeImage(xpm0);
+  return ret;
+}
+int RunclockMenu(void *arg) {
+/*************************************************
+
+    Scrollmenu1  1 data value
+
+*************************************************/
+   int   v0 = 1;
+   RetVal=0;
+   clockMenu(NULL ,&v0 );
+   return RetVal;
+}

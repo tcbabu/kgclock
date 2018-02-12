@@ -1,0 +1,23 @@
+$o15
+$m100
+
+$c
+!z21kgclock
+$c
+Ver 1.2
+
+$h9
+$SP
+Desktop clock for X Windows. For clean operations kgclock requires a
+Compositing Window Manager. Developed using Kulina Graphics Library for
+LINUX, and designed using kgDevelop, a GUI application developer for
+Linux. Kulina Graphics Library uses GraphicsMagick for image processing
+and hence depends on GraphicsMagick and all dependencies of
+GraphicsMagick. For audio alerts 'aplay' is required.
+Reading message is supported using 'flite' which is built in.
+$l
+
+$c
+A Free Software, Distributed under GPL
+!z12a product of !z21KULINA SYSTEMS, TRIVANDRM. INDIA
+www.facebook.com/kulinagraphics, tcbabu@gmail.com
