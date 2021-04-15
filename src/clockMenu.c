@@ -19,7 +19,7 @@ int  clockMenubrowser1callback(int item,int i,void *Tmp) {
   pt = D->pt;
   E = (DIE *)kgGetWidget(Tmp,i);
   RetVal=item;
-  RESTART= doEvents(item);
+  RESTART=doEvents(item);
   switch(item) {
     case 1: 
       break;

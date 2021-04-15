@@ -827,12 +827,12 @@ int doEvents(int item) {
            switch(item) {
              case 1:
                RunConfigDia(NULL);
-               RESTART=1;
+               RESTART=8;
                write(pipeid1[1],sig+2,sizeof(int));
                ret=1;
                break;
              case 2:
-               RESTART=1;
+               RESTART=0;
 //TCB
                RunSetAlertDia(NULL);
                write(pipeid[1],sig+1,sizeof(int));
@@ -870,7 +870,7 @@ int doEvents(int item) {
                write(pipeid[1],sig+1,sizeof(int));
                break;
            } 
-   return item;
+   return RESTART;
 }
 void *eventMonitor_o(void *Tmp) {
    int ret=0,x,y,xm,ym,offset,ln,xres,yres,xo,yo;
@@ -885,6 +885,7 @@ void *eventMonitor_o(void *Tmp) {
                ret=1;
                break;
              case 2:
+               RESTART=0;
                RunSetAlertDia(NULL);
                write(pipeid[1],sig+1,sizeof(int));
                ret=0;
@@ -895,12 +896,14 @@ void *eventMonitor_o(void *Tmp) {
                ret=1;
                break;
              case 4:
+               RESTART=0;
                kgSplashDia(-1,-1,360,480,(char *)&About_str,(char *)"",
                                10,0,0xf0cfcfcf);
                write(pipeid[1],sig+1,sizeof(int));
                ret=0;
                break;
              default:
+               RESTART=0;
                ret=0;
                write(pipeid[1],sig+1,sizeof(int));
                break;
@@ -1737,17 +1740,51 @@ void InstallClock(char *kgclock) {
      }
    }
 }
+int CheckProcessDisplay(char *curdsp,int pid) {
+  int pp;
+  char name[3000];
+  char *pt;
+  int ret=0,count,i;
+  sprintf(name,"/proc/%-d/environ",pid);
+  pp = open(name ,O_RDONLY);  
+  if(pp < 0) return ret;
+  while(( count=read(pp,name,2900)) >0) {
+     i=0; while(i< count) {
+       if((name[i]< ' ') ) name[i]=' ';
+       i++;
+     }
+     name[count]='\n';
+     name[count+1]='\0';
+
+     pt =strstr(name,"DISPLAY=");
+     if(pt == NULL ) continue;
+//     printf("GOT: %s\n",pt);
+     pt +=8;
+     count= strlen(curdsp);
+     strncpy(name,pt,count);
+     name[count]='\0';
+     if (strcmp(curdsp,name)==0) ret = 1;
+     break;
+  }
+  close(pp);
+  
+  return ret;
+ 
+}
 int KillOtherJobs(char *name) {
    char buff[300];
    int Id=0,Okay=0,Pid,ln,i;
    char tty[50],dummy[50],program[100];
    FILE *pp;
    char *pt;
+   char *env;
    ln =strlen(name);
    while(name[ln]<=' ')name[ln--]='\0';
    while((ln>=0)&&(name[ln]!='/')) ln--;
    pt=name+ln+1;
    Pid = getpid();
+   env = getenv("DISPLAY");
+//   printf("DISPLAY=%s\n",env);
    while(!Okay) {
      pp = popen("ps -e","r");
      if(pp==NULL) return 0;
@@ -1759,8 +1796,11 @@ int KillOtherJobs(char *name) {
         if(strcmp(pt,program)==0) {
              if(Id==Pid) continue;
 #if 1
-             kill(Id,9);
-             Okay =0;
+             if( CheckProcessDisplay(env,Id)) {
+//               printf("Killing : %d\n",Id);
+               kill(Id,9);
+               Okay =0;
+             }
 #else
              exit(0);
 #endif
@@ -1778,7 +1818,7 @@ int main(int argc,char **argv) {
   DIR *dir;
   char flname[300];
   
-  KillOtherJobs(argv[0]);
+  KillOtherJobs(basename(argv[0]));
   strcpy(flname,getenv("HOME"));
   strcat(flname,"/.kgclock");
   dir = opendir(flname);
@@ -1853,9 +1893,12 @@ int main(int argc,char **argv) {
     }
 
   }
-  if(Daemon) daemon(0,0);
+//  if(Daemon) daemon(0,0);
+  if (Daemon) {
+    if( (pid=fork())!= 0) exit(0);
+  }
   while (1) {
-    if( (pid=fork())==0) {
+   if( (pid=fork())==0) {
      kgDefineColor(DateColor,Dred,Dgreen,Dblue);
      kgDefineColor(HarmColor,Hred,Hgreen,Hblue);
      kgDefineColor(MarmColor,Mred,Mgreen,Mblue);
@@ -1869,27 +1912,30 @@ int main(int argc,char **argv) {
        pthread_cancel(Dth);
        pthread_join(Dth,NULL);
      }
-     exit(RESTART);
+     return(RESTART);
    }
    else {
      int status;
      waitpid(pid,&status,0);
-//     printf("status= %d\n",status);
-     if(status == 0) break;
+     RESTART =0;
+     if(status == 0x800) {RESTART=1;}
+     printf("RESTART = %d %x\n",RESTART,status);
      fp = fopen(flname,"r");
      if(fp != NULL) {
-       fscanf(fp,"%d%d%d%f",&Type,&Shadow,&Nosecarm,&scalefac);
-       fscanf(fp,"%d%d%d%d",&ShDate,&Xpos,&Ypos,&DateFont);
-       fscanf(fp,"%d%d%d",&Dred,&Dgreen,&Dblue);
-       fscanf(fp,"%d%d%d",&Hred,&Hgreen,&Hblue);
-       fscanf(fp,"%d%d%d",&Mred,&Mgreen,&Mblue);
-       fscanf(fp,"%d%d%d",&Sred,&Sgreen,&Sblue);
-       fscanf(fp,"%d%d%d",&Tred,&Tgreen,&Tblue);
-       if(scalefac < 0.2 ) scalefac=0.2;
-       if( Nosecarm==1) TIMERESO=NOSECARMRESO;
-       else TIMERESO=1;
-       fclose(fp);
+         fscanf(fp,"%d%d%d%f",&Type,&Shadow,&Nosecarm,&scalefac);
+         fscanf(fp,"%d%d%d%d",&ShDate,&Xpos,&Ypos,&DateFont);
+         fscanf(fp,"%d%d%d",&Dred,&Dgreen,&Dblue);
+         fscanf(fp,"%d%d%d",&Hred,&Hgreen,&Hblue);
+         fscanf(fp,"%d%d%d",&Mred,&Mgreen,&Mblue);
+         fscanf(fp,"%d%d%d",&Sred,&Sgreen,&Sblue);
+         fscanf(fp,"%d%d%d",&Tred,&Tgreen,&Tblue);
+         if(scalefac < 0.2 ) scalefac=0.2;
+         if( Nosecarm==1) TIMERESO=NOSECARMRESO;
+         else TIMERESO=1;
+         fclose(fp);
      }
    }
+   if(RESTART==0) break;
+   RESTART=0;
   }
 }
