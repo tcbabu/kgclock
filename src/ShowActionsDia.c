@@ -1,4 +1,4 @@
-#include "kulina.h"
+#include <kulina.h>
 int ShowActionsDia( void *parent ,char **menu0) {
   int ret=1;
   DIALOG D;
@@ -94,7 +94,7 @@ int ShowActionsDia( void *parent ,char **menu0) {
      GetDisplaySize(&xres,&yres); 
      D.xo=D.yo=0; D.xl = xres; D.yl=yres;
   }    /*  end of fullscreen mode */
-  kgDefaultGuiColors(&(D.gc));    /*  set colors for gui*/
+//  kgDefaultGuiColors(&(D.gc));    /*  set colors for gui*/
   D.SearchList=NULL;
   ret= kgUi(&D);
   return ret;

@@ -219,7 +219,7 @@ int ConfigDia( void *parent ,void *v0 ,void *v1 ,void *v2 ,void *v3
     butncode6,
     NULL,ConfigDiahoribar1callback,/* arg, Callbak */
     xpm6,bkgr6, /* pointers to xpms and colors */
-     3,1.000000 /* button type and roundinfg factor(0-0.5) */
+     6,0.500000 /* button type and roundinfg factor(0-0.5) */
   };
   d[0].w = &w0;
   d[1].w = &w1;
@@ -229,6 +229,7 @@ int ConfigDia( void *parent ,void *v0 ,void *v1 ,void *v2 ,void *v3
   d[5].f = &f5;
   d[6].H = &H6;
   d[7].t = NULL;
+  kgInitUi(&D);
   D.d = d;
   D.bkup = 1; /* set to 1 for backup */
   D.bor_type = 4;
@@ -273,9 +274,9 @@ int ConfigDia( void *parent ,void *v0 ,void *v1 ,void *v2 ,void *v3
      GetDisplaySize(&xres,&yres); 
      D.xo=D.yo=0; D.xl = xres; D.yl=yres;
   }    /*  end of fullscreen mode */
-  kgDefaultGuiTheme(&(D.gc));    /*  set colors for gui*/
+//  kgDefaultGuiTheme(&(D.gc));    /*  set colors for gui*/
 //  kgGrayGuiTheme(&(D.gc));    /*  set colors for gui*/
-  ModifyConfigDiaGc(&(D.gc));    /*  set colors for gui*/
+//  ModifyConfigDiaGc(&(D.gc));    /*  set colors for gui*/
   D.SearchList=NULL;
   ret= kgUi(&D);
   return ret;

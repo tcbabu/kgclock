@@ -1,4 +1,4 @@
-#include "kulina.h"
+#include <kulina.h>
 #include "actMenuCallbacks.h"
 int actMenu( void *parent ,void *v0 ) {
   int ret=1;
@@ -24,6 +24,7 @@ int actMenu( void *parent ,void *v0 ) {
   };
   d[0].e = &e0;
   d[1].t = NULL;
+  kgInitUi(&D);
   D.d = d;
   D.bkup = 1; /* set to 1 for backup */
   D.bor_type = 4;
@@ -66,7 +67,7 @@ int actMenu( void *parent ,void *v0 ) {
      GetDisplaySize(&xres,&yres); 
      D.xo=D.yo=0; D.xl = xres; D.yl=yres;
   }    /*  end of fullscreen mode */
-  kgDefaultGuiColors(&(D.gc));    /*  set colors for gui*/
+//  kgDefaultGuiColors(&(D.gc));    /*  set colors for gui*/
   D.SearchList=NULL;
   ret= kgUi(&D);
   return ret;

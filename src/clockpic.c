@@ -1,4 +1,4 @@
-#include "kulina.h"
+#include <kulina.h>
 #include <math.h>
 extern int DateColor;
 extern int Dred,Dgreen,Dblue;
@@ -24,7 +24,7 @@ int DrawMark(DIG *G,double angle,double dangle,double r,double l,double xoff,dou
   kgPolyFill(G,4,xp,yp,0,color);
   return 1;
 }
-int DrawCircle(DIG *G,double angle,double r,double l,int color) {
+int Draw_Circle(DIG *G,double angle,double r,double l,int color) {
   double Ang,R,cs,ss,ang;
   float xp[4],yp[4],x,y;
   ang = angle;

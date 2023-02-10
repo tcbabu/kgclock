@@ -14,7 +14,7 @@
 #include <time.h>
 #include <wait.h>
 #include <pthread.h>
-#include "kulina.h"
+#include <kulina.h>
 #include "defines.h"
 extern pthread_mutex_t _Tmplock;
 static char Pgpath[300];
@@ -28,6 +28,7 @@ static long Day=0;
 static int Curmin=0;
 static int Update=1;
 static int Wait=10;
+extern int RVAL;
 typedef struct _ntfy {
 	long day;
 	int hr;
@@ -59,6 +60,10 @@ static int Months[12]= {31,28,31,30,31,30,31,31,30,31,30,31};
 int flite(int argc,char **argv);
 #define Lock pthread_mutex_lock(&_Tmplock)
 #define Unlock pthread_mutex_unlock(&_Tmplock)
+#define System(cmd) { \
+  int rval; \
+  rval = system(cmd); \
+}
 int runfunction(char *job,int (*ProcessOut)(int,int,int),int (*function)(int,char **)){
    int ret =0;
    FILE *fp,*fp1;
@@ -99,12 +104,12 @@ int runfunction(char *job,int (*ProcessOut)(int,int,int),int (*function)(int,cha
    if(pid == 0) { /* child process */
 //     if(fork()!=0) exit(0); /* to avoid zombie */
      close(0);
-     dup(pip2[0]);
+     RVAL = dup(pip2[0]);
      close(pip2[0]);
      close(1);
-     dup(pip[1]);
+     RVAL = dup(pip[1]);
      close(2);
-     dup(pip[1]);
+     RVAL = dup(pip[1]);
      close(pip[1]);
      if(function != NULL) function(argc,args);
      printf("END:\n");
@@ -139,7 +144,7 @@ void GetActionsDisplay(char **pt) {
   char buff[500];
   pthread_mutex_lock(&_Tmplock);
   for(i=0;i<Nitems;i++) {
-    sprintf(buff,"%8.8ld %2.2d %2.2d %c %6d %s\0",
+    sprintf(buff,"%8.8ld %2.2d %2.2d %c %6d %s",
      Ntfy[i].day,Ntfy[i].hr,Ntfy[i].min,Ntfy[i].code, Ntfy[i].rep,Ntfy[i].msg);
      buff[49]='\0';
     strcpy(pt[i],buff);
@@ -154,7 +159,7 @@ void GetActionsItemDisplay(int item, char *pt) {
   pthread_mutex_lock(&_Tmplock);
   for(i=0;i<Nitems;i++) {
     if(item != i) continue;
-    sprintf(buff,"%8.8ld %2.2d %2.2d %c %6d %s\0",
+    sprintf(buff,"%8.8ld %2.2d %2.2d %c %6d %s",
      Ntfy[i].day,Ntfy[i].hr,Ntfy[i].min,Ntfy[i].code, Ntfy[i].rep,Ntfy[i].msg);
      buff[49]='\0';
     strcpy(pt,buff);
@@ -326,7 +331,7 @@ static int PlayWav(char *wav) {
 	char comm[1000];
 	strcpy(comm,"aplay -q ");
 	strcat(comm,wav);
-	system(comm);
+	System(comm);
 }
 static int runflite(char *arg){
    int pid,status;
@@ -393,7 +398,7 @@ static int SayText(char *mes){
 	runfestival(Audfile);
 	/*
 	sprintf(comm,"festival --tts audiofile");
-	system(comm);
+	System(comm);
 	*/
 #else
         runflite(mes);
@@ -405,7 +410,7 @@ static int PlayFile(char *file){
 	/*
 	char comm[1000];
 	sprintf(comm,"festival --tts %s",file);
-	system(comm);
+	System(comm);
 	*/
 }
 static int Ring(void) {
@@ -413,14 +418,14 @@ static int Ring(void) {
 	strcpy(comm,"aplay -q ");
 	strcat(comm,Pgpath);
 	strcat(comm,"phone.wav");
-	system(comm);
+	System(comm);
 }
 static int Beep(void) {
 	char comm[1000];
 	strcpy(comm,"aplay -q ");
 	strcat(comm,Pgpath);
 	strcat(comm,"beep.wav");
-	system(comm);
+	System(comm);
 }
 static void  Cleandb(void) {
 	int i=0,j;
@@ -628,7 +633,7 @@ void DeleteActions(int *sw,char **pt) {
           count=0;
 	  for(i=0;i<Nitems;i++) {
                 if(sw[i]==1){
-                    sprintf(buff,"%8.8ld %2.2d %2.2d %c %6d %s\0",
+                    sprintf(buff,"%8.8ld %2.2d %2.2d %c %6d %s",
                          Ntfy[i].day,Ntfy[i].hr,Ntfy[i].min,Ntfy[i].code, Ntfy[i].rep,Ntfy[i].msg);
                     buff[49]='\0';
                     if(strcmp(buff,pt[i])==0) continue;
@@ -697,8 +702,7 @@ static int UpdateTable(void) {
 
 void * SplashThread(void * msg) {
     pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,NULL);
-    RunkgSplashDia(msg);
-    return NULL;
+    return RunkgSplashDia(msg);
 }
 void * EmptyThread(void * msg) {
     pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,NULL);
@@ -837,7 +841,9 @@ void * TakeActions(void *arg) {
                        msg.xsize=500;
                        msg.ysize=60;
                        msg.xpm=NULL;
-                       msg.message=(char *)"It is time to shutdown the machine";
+                       msg.message = (char *)malloc(100);
+                       strncpy(msg.message,(char *)"It is time to shutdown the machine",98);
+//                       msg.message=(char *)"It is time to shutdown the machine";
                        msg.font =23;
                        msg.fontcolor=0;
                        msg.bkcolor = 0xf08f8f8f;
@@ -846,7 +852,8 @@ void * TakeActions(void *arg) {
                        pthread_create(&Sth,NULL,RunkgSplashDia,&msg);
 		       ThreadSleep(10,0);
                        Lock;
-                       system("/sbin/poweroff");
+                       free(msg.message);
+                       System("/sbin/poweroff");
                      }
 		     break;
 		   default:

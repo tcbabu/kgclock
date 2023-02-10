@@ -1,4 +1,4 @@
-#include "kulina.h"
+#include <kulina.h>
 
 void *MakePixmapImage(int xl,int yl,int r,int g,int b,float fac) {
    void *Img,*fid,*Img1;

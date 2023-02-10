@@ -1,4 +1,4 @@
-#include "kulina.h"
+#include <kulina.h>
 staic int delitem=0;
 int  DelActionDiabrowser1callback(int key,int i,void *Tmp) {
   DIA *D;DIE *B; 
@@ -102,6 +102,7 @@ int DelActionDia( void *parent ,void *v0 ,char **menu0) {
   d[0].e = &e0;
   d[1].H = &H1;
   d[2].t = NULL;
+  kgInitUi(&D);
   D.d = d;
   D.bkup = 1; /* set to 1 for backup */
   D.bor_type = 0;
@@ -144,7 +145,7 @@ int DelActionDia( void *parent ,void *v0 ,char **menu0) {
      GetDisplaySize(&xres,&yres); 
      D.xo=D.yo=0; D.xl = xres; D.yl=yres;
   }    /*  end of fullscreen mode */
-  kgDefaultGuiColors(&(D.gc));    /*  set colors for gui*/
+//  kgDefaultGuiColors(&(D.gc));    /*  set colors for gui*/
   D.SearchList=NULL;
   ret= kgUi(&D);
   return ret;

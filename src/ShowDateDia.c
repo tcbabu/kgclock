@@ -1,4 +1,4 @@
-#include "kulina.h"
+#include <kulina.h>
 #include <time.h>
 #include  <sys/time.h>
 #include <fcntl.h>
@@ -220,7 +220,7 @@ int ShowDateDia( void *parent ) {
   if(D.parent != NULL) {
     D.gc = ((DIALOG *)D.parent)->gc;
   }
-  else kgColorTheme(&D,Red,Green,Blue);
+//  else kgColorTheme(&D,Red,Green,Blue);
 //  kgColorTheme(&D,230,230,230);    /*  set colors for gui*/
 //  ModifyShowDateDiaGc(&(D.gc));    /*  set colors for gui*/
   D.SearchList=NULL;

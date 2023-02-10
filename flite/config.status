@@ -429,7 +429,7 @@ gives unlimited permission to copy, distribute and modify it."
 
 ac_pwd='/home/babu/BUILD/kgclock-1.2/flite'
 srcdir='.'
-INSTALL='/usr/bin/install -c'
+INSTALL='/bin/install -c'
 test -n "$AWK" || AWK=awk
 # The default lists apply if the user does not specify any file.
 ac_need_defaults=:
@@ -598,6 +598,7 @@ S["SHFLAGS"]=""
 S["OTHERLIBS"]=""
 S["HOST_CPU"]="x86_64"
 S["HOST_OS"]="linux-gnu"
+S["ENDIANDEFS"]=""
 S["VOXDEFS"]=""
 S["LEXDEFS"]=""
 S["NM"]=""
@@ -657,6 +658,7 @@ S["infodir"]="${datarootdir}/info"
 S["docdir"]="${datarootdir}/doc/${PACKAGE}"
 S["oldincludedir"]="/usr/include"
 S["includedir"]="${prefix}/include"
+S["runstatedir"]="${localstatedir}/run"
 S["localstatedir"]="${prefix}/var"
 S["sharedstatedir"]="${prefix}/com"
 S["sysconfdir"]="${prefix}/etc"

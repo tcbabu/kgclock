@@ -7,7 +7,7 @@
 #include <time.h>
 #include <wait.h>
 #include <pthread.h>
-#include "kulina.h"
+#include <kulina.h>
 #include "defines.h"
 extern unsigned int Red,Green,Blue;
 extern pthread_mutex_t _Tmplock;
@@ -416,7 +416,7 @@ int setnotifydia( void *parent ,void *v0 ,void *v1 ,void *v2 ,void *v3
   if(D.parent != NULL) {
     D.gc = ((DIALOG *)D.parent)->gc;
   }
-  else kgColorTheme(&D,Red,Green,Blue);
+//  else kgColorTheme(&D,Red,Green,Blue);
 //  kgColorTheme(&D,230,230,230);    /*  set colors for gui*/
 //  ModifysetnotifydiaGc(&(D.gc));    /*  set colors for gui*/
   D.SearchList=NULL;
@@ -445,7 +445,7 @@ void *Runsetnotifydia(void *arg) {
    int   v6 = 0;
    int   v7 = 1;
    int ret;
-   GetDateTime();
+   ret = GetDateTime();
    hr = Curmin/60;
    minutes = Curmin%60;
    v1 = Day/10000;
@@ -520,6 +520,7 @@ static int GetDateTime(void) {
 }
 void * setnotify(void *arg) {
 	FILE *fp;
+	void *Ret;
 	char buff[200],flname[100];
 	int rep,i;
 	char code;
@@ -531,7 +532,7 @@ void * setnotify(void *arg) {
         }
 	strcpy(dbsfile,Pgpath);
 	strcat(dbsfile,"notify.dbs");
-        Runsetnotifydia(arg);
+        Ret = Runsetnotifydia(arg);
 	switch(action) {
 	   case 1: return NULL;
 	   case 2: code='R';break;

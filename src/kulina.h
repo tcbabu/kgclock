@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+#include <malloc.h>
 #include <ctype.h>
 #include <pthread.h>
 #include <sys/types.h>
@@ -865,12 +866,16 @@ typedef struct Dia_str {
   int NoWinMngr; // if set to 1 it is assumed that no window manager is active
   int Maxl,Maxw; // for further development to include bigger size than xl and yl
   void *PWIN; // NULL, if not set as NULL it will be used as parent Window
-  void *ThInfo;  //  for further development
+  void *ThInfo;  // internal
+  void *Kbrd; //for keyboard 
+  int InputWid;
 } DIALOG;
+
 typedef struct _WidgetGroup {
   void *wlist;
   void *arg;
   int hide;
+  int (*CleanupGrp)(void *);
 } WIDGETGRP;
 typedef struct _jpegimg {
   char Sign[4]; // Sign is "JPG"
@@ -910,6 +915,8 @@ typedef struct _gmImage {
   int xoffset,yoffset;
   int bkgrclr;
   float rzfac;
+  void *info;
+  void *exce;
 } GMIMG;
 
 void opntwin(DIALOG *D,int ix,int iy,int chrs,int lines);
@@ -924,11 +931,13 @@ char **fontnames(void);
 
 typedef int (*CALLBACK)(int,int,void *);
 
+int  kgGetVersion(void);
 int  kgUi(DIALOG *D);
 void kgInitUi(void *Tmp);
 void kgCleanUi(void *tmp);
 int  kgOpenGrp(void *Tmp);
 int  kgAddtoGrp(void *tmp,int grpid,void * Widget);
+int  kgSetGrpCleanup(void *tmp,int grpid,int (*Cleanup)(void *));
 int  kgSetGrpVisibility(void *Tmp,int grpid,int val);
 int  kgUpdateGrp(void *Tmp,int grpid);
 int  kgMoveGrp(void *Tmp,int grpid,int x1,int y1);
@@ -1041,7 +1050,6 @@ int kgScrollUpThumbNails (DIY *y);
 int kgDragThumbNail(DIY *Y,int item,int *x,int *y);
 int kgPickImage( void *parent,int xo,int yo,void *pt);
 int kgSelectImage( void *parent,int xo,int yo,int ThSize,void *pt);
-void kgDropFocus(void *tmp);
 int kgRedrawDialog(DIALOG *Dialog);
 int kgDrawDialog(DIALOG *D);
 ThumbNail ** kgMakeThumbNails(char *dir,int size);
@@ -1053,6 +1061,7 @@ void * kgOpenBusy(void *arg,int xo,int yo);
 void kgCloseBusy(void * id);
 void kgAddSearchDir(void *Tmp,char *Dir);
 void kgColorTheme(DIALOG *D,unsigned char red,unsigned char green, unsigned char blue);
+void kgColorTheme1(DIALOG *D,unsigned char red,unsigned char green, unsigned char blue);
 void kgResetColor(void *D,int no,int ir,int ig,int ib); // redefines a color; but will not affect hardcopy
 
 /* Default definitions of color */
@@ -1105,9 +1114,31 @@ int kgSendUpKeyEvent(void *Tmp) ;
 int kgSendDownKeyEvent(void *Tmp) ;
 int kgSendEnterKeyEvent(void *Tmp) ;
 int kgSendLinefeedKeyEvent(void *Tmp) ;
+int kgSendControlKeyEvent(void *Tmp,int ch);
+
+int kgSendKeyToWindow(void *Tmp,void *wtmp,int ch);
+int kgSendTabKeyToWindow(void *Tmp,void *win) ;
+int kgSendSpaceKeyToWindow(void *Tmp,void *win) ;
+int kgSendDeleteKeyToWindow(void *Tmp,void *win) ;
+int kgSendInsertKeyToWindow(void *Tmp,void *win) ;
+int kgSendPageupKeyToWindow(void *Tmp,void *win) ;
+int kgSendPagedownKeyToWindow(void *Tmp,void *win) ;
+int kgSendEscapeKeyToWindow(void *Tmp,void *win) ;
+int kgSendClearKeyToWindow(void *Tmp,void *win) ;
+int kgSendHomeKeyToWindow(void *Tmp,void *win) ;
+int kgSendEndKeyToWindow(void *Tmp,void *win) ;
+int kgSendBackspaceKeyToWindow(void *Tmp,void *win) ;
+int kgSendLeftKeyToWindow(void *Tmp,void *win) ;
+int kgSendRightKeyToWindow(void *Tmp,void *win) ;
+int kgSendUpKeyToWindow(void *Tmp,void *win) ;
+int kgSendDownKeyToWindow(void *Tmp,void *win) ;
+int kgSendEnterKeyToWindow(void *Tmp,void *win) ;
+int kgSendLinefeedKeyToWindow(void *Tmp,void *win) ;
+int kgSendControlKeyToWindow(void *Tmp,void *win,int ch);
 /*
   Image related Calls
 */
+void kgInitGm (void);
 void *kgGetImageCopy(void *D,void *img);
 void *kgGetProcessedImage(void *timg,int Bsize,float rfac,
                          int Btred,int Btgreen,int Btblue);
@@ -1136,6 +1167,7 @@ void *kgMergeImages(void  *img1,void  *img2,int Xshft,int Yshft); /* second on f
 void *kgMergeTransparentImage(void  *img1,void  *img2,int Xshft,int Yshft); /* second on first */
 void *kgMaskImage(void *png,void *mask);
 void *kgCopyImage(void *img);
+void *kgCreateImage(int xzise,int ysize);
 void *kgCleanImage(void *img);
 void *kgFlipImage(void *img); // About X refledction overwrites img
 void *kgFlopImage(void *img); // About Y refledction overwrites img
@@ -1238,6 +1270,7 @@ void kgPointerZoom(DIG *G);
 void kgPointerAntialiasedZoom(DIG *G);
 void kgBackupGph(DIG *G,char *flname);
 void kgHardCopy(DIG *G,char *flname);
+void kgA4Copy(DIG *G,char *flname);
 void kgLandscapeCopy(DIG *G,char *flname);
 void kgOpenObject(DIG *G,int obj);
 void kgCloseObject(DIG *G);
@@ -1300,6 +1333,8 @@ void *kgGetResizedImage(void *G);
 void *kgGetSharpImage(void *G);
 void *kgGetSmoothImage(void *G);
 void kgCloseImage(void *Gtmp);
+void *kgInitGph(int width,int height);
+void kgCloseGph(void *Gtmp);
 /* end of graphics calls */
 /* wait related */
 void kgWaitButtonRelease(DIALOG *D);
@@ -1338,6 +1373,10 @@ int RGBtoHLS(float r,float g, float b,float *h,float *l,float *s);
 void kgGetWindowSize(DIALOG *D,int *length,int *height);
 int kgGetRootPos( int *xp,int *yp);
 int kgGetRootRect( int *x1,int *y1,int *x2,int *y2) ;
+void * kgGetInputFocus (void *Tmp);
+int kgSetInputFocus(void *Tmp,void *wtmp);
+int kgCheckMyWindow(void *Tmp,void *wtmp);
+void kgDropFocus(void *tmp);
 /* Reading Widget data from file */
 DIM * Read_data_message(FILE *fp);
 DIO * Read_data_progressbar(FILE *fp);
@@ -1515,6 +1554,80 @@ int kgClearHighlight(void *Tmp);
 int kgCheckSelection(void *Tmp);
 int kgSetClipbordCallback(void *Tmp,int *(cpCallback)(int,void *));
 int kgSetClipMenu(void *Tmp,char **menu);
+#ifndef D_KEYBRD
+#define D_KEYBRD
+#ifndef D_KBINFO
+#define D_KBINFO
+typedef struct _kb_info {
+ int fillclr,butclr,charclr;
+ int xl,yl,xg,yg;
+ int btype;
+ int font;
+ float rfac,trans;
+ int kbtype;
+ int Bodr;
+ float Brfac;
+} KBINFO;
+int kgInitKbinfo(KBINFO *ki);
+#endif
+typedef struct _keybrd {
+  void *D;
+  int GrpId;
+  void *Coff,*Con,*Lon,*Loff;
+  int sgrp,cgrp;
+  int offgrp,ongrp;
+  int CapsLock;
+  int ShiftPress;
+  int CurWid;
+  int Vis;
+  int Btype;
+  int symgrp;
+  int kbtype;
+  char Sfac[5];
+  int  Bfont,Bclr,ButClr;
+  int  FillClr;
+  float Rfac;
+  int grp1,grp2,grp3,grp4,grp5,grp6; //extras
+  int Hclr;
+  void *Thds;
+  int Bx,By,Xg,Yg, Boff;
+  float trans;
+  int Bodr;
+  void *TargetWindow;
+  float Brfac;
+  int CntlGrp;
+  void *XpmList; // for Xpms
+  int ControlPress,AltPress; // for future
+} KEYBRD;
+int kgKeybrd(void *Tmp,int Vis,void *kbinfo);
+int kgMakeKeybrd5(DIALOG *D,int Bx,int By,int Xg,int Yg,int Vis,int btype,int bfont,int fontclr,int butclr,int bkgrclr,float rfac,float transparency,int bodr,float Brfac);
+int kgMakeKeybrd4(DIALOG *D,int Bx,int By,int Xg,int Yg,int Vis,int btype,int bfont,int fontclr,int butclr,int bkgrclr,float rfac,float transparency,int bodr,float Brfac);
+int kgMakeKeybrd0(DIALOG *D,int Bx,int By,int Xg,int Yg,int Vis,int btype,int bfont,int fontclr,int butclr,int bkgrclr,float rfac,float transparency,int bodr,float Brfac);
+int kgMakeKeybrd3(DIALOG *D,int xo,int yo,int Vis,int btype,int bfont,int fontclr,int butclr,int bkgrclr,float rfac,float transparency) ;
+int kgMakeKeybrd2(DIALOG *D,int xo,int yo,int Vis,int btype,int bfont,int fontclr,int butclr,int bkgrclr,float rfac,float transparency) ;
+int kgMakeSkeybrd(DIALOG *D,int xo,int yo,int Vis,int btype,int bfont,int fontclr,int butclr,int bkgrclr,float rfac,float transparency);
+int kgMakeKeybrd1(DIALOG *D,int xo,int yo,int Vis,int btype,int bfont,int fontclr,int butclr,int bkgrclr,float rfac,float transparency);
+int kgMakeDefaultKeybrd3(DIALOG *D,int xo,int yo,int vis);
+int kgMakeDefaultKeybrd2(DIALOG *D,int xo,int yo,int vis);
+int kgMakeDefaultSkeybrd(DIALOG *D,int xo,int yo,int vis);
+int kgMakeDefaultKeybrd1(DIALOG *D,int xo,int yo,int vis);
+int kgSetKeybrdWidget(void *Tmp,int curwid);
+int kgHideKeybrd(void *Tmp);
+int kgShowKeybrd(void *Tmp);
+int kgGetKeybrdSize(void *Tmp,int *xl,int *yl);
+int kgShiftKeybrd(void *Tmp,int xs,int ys);
+int kgMakeKeybrd(void *Tmp,int Type,int Vis,int Btype,int Bfont,int Charclr,int Butclr,int Fillclr,float Rfac,float Trans) ;
+int kgMakeDefaultKeybrd(void *Tmp,int Type,int Vis);
+static void *Malloc(int size) {
+   void *pt;
+   pt = (void *) malloc(size);
+   if(pt==NULL) {
+     fprintf(stderr,"Failed in Malloc\n");
+     exit(0);
+   }
+   return pt;
+}
+#endif
 #ifdef __cplusplus
 }
 #endif

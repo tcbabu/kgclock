@@ -10,7 +10,7 @@ buildflite     :
 	echo "export HOMEDIR=$(PWD)" >buildflite
 	echo "export FLITE=$(PWD)/flite" >>buildflite
 	echo "cd $(FLITE)" >>buildflite
-	echo "./configure prefix=$(HOMEDIR)">> buildflite
+	echo "./configure prefix=$(HOMEDIR)" --with-audio=linux >> buildflite
 	echo "make">> buildflite
 	echo "make install">> buildflite
 	chmod +x buildflite

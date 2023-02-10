@@ -37,7 +37,7 @@ AC_PROG_CC
 AC_PROG_RANLIB
 AC_PROG_INSTALL
 AC_CHECK_TOOL(AR, ar)
-AC_C_BIGENDIAN
+AC_C_BIGENDIAN(ENDIANDEFS=-DWORDS_BIGENDIAN=1,,)
 
 if test "x$GCC" = "xyes"; then
 	CFLAGS="$CFLAGS -Wall"
@@ -136,11 +136,17 @@ dnl         ;;
                 # For the Windows under mingw32 environment
                 # http://www.mingw.org
 		shared=false
-     	        CFLAGS="$CFLAGS -DCST_NO_SOCKETS -DUNDER_WINDOWS -DWIN32 -shared"
-                MINGWPREF="i386-mingw32-"
-                CC="${MINGWPREF}gcc"
-                RANLIB="${MINGWPREF}ranlib"
-                AR="${MINGWPREF}ar"
+     	        CFLAGS="$CFLAGS -DCST_NO_SOCKETS -DUNDER_WINDOWS -DWIN32"
+                PREFLEN=`expr match "$CC" ".*-gcc"`
+                if expr $PREFLEN != 0 > /dev/null; then
+                    # When $CC includes "-gcc", use the preceding
+                    # charactors + '-' as MINGPREF.
+                    # for example:
+                    #   CC=x86_64-w64-mingw32-gcc.exe
+                    #   --> MINGWPREF=x86_64-w64-mingw32-
+                    PREFLEN=`expr $PREFLEN - 3`
+                    MINGPREF=`expr substr $CC 1 $PREFLEN`
+                fi
                 WINDRES="${MINGWPREF}windres"
                 DLLTOOL="${MINGWPREF}dlltool"
                 DLLWRAP="${MINGWPREF}dllwrap"
@@ -210,6 +216,9 @@ dnl         ;;
 	darwin*)
 		CFLAGS="$CFLAGS -no-cpp-precomp"
 	;;
+        wasi*)
+		CFLAGS="$CFLAGS -DDIE_ON_ERROR -DCST_NO_SOCKETS -DWASM32_WASI"
+        ;;
 esac
 
 AC_SUBST(TARGET_OS)
@@ -223,6 +232,7 @@ AC_SUBST(DLLWRAP)
 AC_SUBST(NM)
 AC_SUBST(LEXDEFS)
 AC_SUBST(VOXDEFS)
+AC_SUBST(ENDIANDEFS)
 
 case "$host_cpu" in
      i386|i486|i586|i686)
@@ -378,32 +388,26 @@ AC_CHECK_HEADER(machine/soundcard.h,
 AC_CHECK_HEADER(sys/audioio.h,
               [AUDIODRIVER="sun"
                AUDIODEFS=-DCST_AUDIO_SUNOS])
-# Seems the alsa code I have breaks on earlier versions
-# I'm not sure what the threshold version is, but made this depend on
-# the one I know -- you can still specific --with-audio=alsa
-AC_TRY_COMPILE([#include <alsa/version.h>],
-               [int j=
-                #if SND_LIB_SUBMINOR >= 11
-                3;
-                #endif],
+# We're going to make alsa the default now, if supported 
+AC_CHECK_HEADER(alsa/asoundlib.h,
               [AUDIODRIVER="alsa"
 	       AUDIODEFS=-DCST_AUDIO_ALSA
-               AUDIOLIBS=-lasound])
+               AUDIOLIBS=`pkg-config --libs alsa`
+               if test "$shared" = false; then
+                   AUDIOLIBS=`pkg-config --libs --static alsa`
+               fi])
 AC_CHECK_HEADER(mmsystem.h,
 	      [AUDIODRIVER="wince"
 	       AUDIODEFS=-DCST_AUDIO_WINCE
-	       AUDIOLIBS=-lwinmm])
+	       AUDIOLIBS=-lwinmm],
+	      [],
+	      [#include <windows.h>])
 
 dnl I don't care what you ask for, for wince you get wince
 case "$target_os" in
      wince*)
         AUDIODRIVER="wince"
         AUDIODEFS=-DCST_AUDIO_WINCE
-        AUDIOLIBS=
-     ;;
-     mingw*)
-        AUDIODRIVER="none"
-        AUDIODEFS=-DCST_AUDIO_NONE
         AUDIOLIBS=
      ;;
      android*)

@@ -17,7 +17,7 @@
 #include <signal.h>
 #include <sys/select.h>
 
-#include "kulina.h"
+#include <kulina.h>
 //#include "clockCallbacks.h"
 #include <time.h>
 #include "images.c"
@@ -32,6 +32,8 @@ void RunSetAlertDia(void *);
 DIALOG *ClockD;
 int RESTART=0;
 int TIMERESO=1;
+int RVAL;
+void *Rpt;
 float Transparency;
 float scalefac=0.65;
 //unsigned int Red=220,Green=240,Blue=140;
@@ -84,7 +86,7 @@ int Writedb(void);
 void DeleteAction(int item);
 int GetActionsCount(void);
 
-
+static void *Rval;
 void *ShowDate(void *arg) {
   int xl,yl;
   char buff[200];
@@ -465,7 +467,8 @@ void putDisplay(DIALOG *D,int ln,int offset) {
   mangle = minute*6+sec*0.1;
   mangle =((int)(mangle+0.00001)/3)*3;
   sangle = sec*6;
-    kgCleanBackground(D,offset,offset,ln,ln,Transparency);
+    kgSync(D);
+    kgCleanBackground(D,offset,offset,ln-4,ln-4,Transparency);
     tmpimg =(GMIMG *)kgCleanImage(tmpimg);
     if(omangle != mangle ) {
       Bimg =(GMIMG *)kgCleanImage(Bimg);
@@ -518,8 +521,8 @@ int CheckAndProcessEvent(DIALOG *D) {
 //            printf("retval = %d\n",retval);
             rsig[0]=1;
             if(retval ) {
-              if(FD_ISSET(pipeid[0],&rfds)) read(pipeid[0],rsig+0,sizeof(int));
-              if(FD_ISSET(pipeid1[0],&rfds)) read(pipeid1[0],rsig+0,sizeof(int));
+              if(FD_ISSET(pipeid[0],&rfds)) RVAL = read(pipeid[0],rsig+0,sizeof(int));
+              if(FD_ISSET(pipeid1[0],&rfds)) RVAL = read(pipeid1[0],rsig+0,sizeof(int));
 #ifdef D_THREAD
               pthread_join(Pth,NULL);
 #endif
@@ -628,7 +631,7 @@ void * UpdateClock(void * arg){
 #ifdef D_THREAD
   pthread_create(&Pth,NULL,dummyMonitor,arg);
 #else
-  write(pipeid[1],sig+1,sizeof(int));
+  RVAL = write(pipeid[1],sig+1,sizeof(int));
 #endif
   while(1) {
     if(!CheckAndProcessEvent(D)) break;
@@ -640,7 +643,7 @@ void * UpdateClock(void * arg){
     if(retval ) {
        rsig[0]=1;
        if(FD_ISSET(pipeid1[0],&rfds)){
-         read(pipeid1[0],rsig+0,sizeof(int));
+         RVAL = read(pipeid1[0],rsig+0,sizeof(int));
          if(rsig[0]==0){
 #ifdef D_THREAD
            pthread_join(Pth,NULL);
@@ -669,12 +672,13 @@ void clockdia1gbox1init(int i,void *Tmp) {
 }
 int clockdia1init(void *Tmp) {
   int ret = 0;
+  void *Rval;
   
   DIALOG *D;
   D = (DIALOG *)Tmp;
   ClockD= D;
   if(ShDate==1) pthread_create(&Dth,NULL,RunShowDateDia,NULL);
-  UpdateClock(D);
+  Rval = UpdateClock(D);
   kgDropFocus(D);
   return ret;
 }
@@ -796,8 +800,8 @@ int clockdia1( void *parent ) {
      kgDisplaySize(&xres,&yres); 
      D.xo=D.yo=0; D.xl = xres; D.yl=yres;
   }    /*  end of fullscreen mode */
-//  kgDefaultGuiTheme(&(D.gc));    /*  set colors for gui*/
-  kgColorTheme(&D,Red,Green,Blue);
+  kgDefaultGuiTheme(&(D.gc));    /*  set colors for gui*/
+//  kgColorTheme(&D,Red,Green,Blue);
   D.SearchList=NULL;
   ret= kgUi(&D);
   kgFreeImage(img);
@@ -811,36 +815,38 @@ void *Runclockdia1(void *arg) {
 
 
 *************************************************/
-   clockdia1(NULL );
+   int ret;
+   ret = clockdia1(NULL );
    return NULL;
 }
 void *dummyMonitor(void *Tmp) {
-  write(pipeid[1],sig+1,sizeof(int));
-  write(pipeid2[1],sig+1,sizeof(int));
+  RVAL = write(pipeid[1],sig+1,sizeof(int));
+  RVAL = write(pipeid2[1],sig+1,sizeof(int));
   return NULL;
 }
 int doEvents(int item) {
+   void *Ret;
    void *img,*img1;
    int ret=0,x,y,xm,ym,offset,ln,xres,yres,xo,yo;
    int Color;
    ym = YM-40;
            switch(item) {
              case 1:
-               RunConfigDia(NULL);
+               Ret = RunConfigDia(NULL);
                RESTART=8;
-               write(pipeid1[1],sig+2,sizeof(int));
+               RVAL = write(pipeid1[1],sig+2,sizeof(int));
                ret=1;
                break;
              case 2:
                RESTART=0;
 //TCB
                RunSetAlertDia(NULL);
-               write(pipeid[1],sig+1,sizeof(int));
+               RVAL = write(pipeid[1],sig+1,sizeof(int));
                ret=0;
                break;
              case 3:
                RESTART=0;
-               write(pipeid1[1],sig+2,sizeof(int));
+               RVAL = write(pipeid1[1],sig+2,sizeof(int));
                ret=1;
                break;
              case 4:
@@ -862,12 +868,12 @@ int doEvents(int item) {
                kgSplashDia(-1,-1,380,420,(char *)img,(char *)"",10,0,0);
 #endif
                if(img!= NULL) kgFreeImage(img);
-               write(pipeid[1],sig+1,sizeof(int));
+               RVAL = write(pipeid[1],sig+1,sizeof(int));
                ret=0;
                break;
              default:
                ret=0;
-               write(pipeid[1],sig+1,sizeof(int));
+               RVAL = write(pipeid[1],sig+1,sizeof(int));
                break;
            } 
    return RESTART;
@@ -881,52 +887,53 @@ void *eventMonitor_o(void *Tmp) {
              case 1:
                RunConfigDia(NULL);
                RESTART=1;
-               write(pipeid1[1],sig+2,sizeof(int));
+               RVAL = write(pipeid1[1],sig+2,sizeof(int));
                ret=1;
                break;
              case 2:
                RESTART=0;
                RunSetAlertDia(NULL);
-               write(pipeid[1],sig+1,sizeof(int));
+               RVAL = write(pipeid[1],sig+1,sizeof(int));
                ret=0;
                break;
              case 3:
                RESTART=0;
-               write(pipeid1[1],sig+2,sizeof(int));
+               RVAL = write(pipeid1[1],sig+2,sizeof(int));
                ret=1;
                break;
              case 4:
                RESTART=0;
                kgSplashDia(-1,-1,360,480,(char *)&About_str,(char *)"",
                                10,0,0xf0cfcfcf);
-               write(pipeid[1],sig+1,sizeof(int));
+               RVAL = write(pipeid[1],sig+1,sizeof(int));
                ret=0;
                break;
              default:
                RESTART=0;
                ret=0;
-               write(pipeid[1],sig+1,sizeof(int));
+               RVAL = write(pipeid[1],sig+1,sizeof(int));
                break;
            } 
    return NULL;
 }
 void *eventMonitor(void *Tmp) {
-   if(!RunclockMenu(NULL)) write(pipeid[1],sig+1,sizeof(int));
-   write(pipeid2[1],sig+1,sizeof(int));
+   if(!RunclockMenu(NULL)) RVAL = write(pipeid[1],sig+1,sizeof(int));
+   RVAL = write(pipeid2[1],sig+1,sizeof(int));
    return NULL;
 }
 void Runclock(void) {
   int status;
+  void *Ret;
 /*************************************************
 
 
 *************************************************/
-   pipe(pipeid);
-   pipe(pipeid1);
-   pipe(pipeid2);
+   RVAL = pipe(pipeid);
+   RVAL = pipe(pipeid1);
+   RVAL = pipe(pipeid2);
    Soff = (Soff*scalefac)+0.5;
    pthread_create(&Nth,NULL,TakeActions,NULL);
-   Runclockdia1(NULL);
+   Ret = Runclockdia1(NULL);
    pthread_cancel(Nth);
    pthread_join(Nth,NULL);
 }
@@ -1002,7 +1009,7 @@ int  ConfigDiabutnbox3callback(int key,int i,void *Tmp) {
      char command[500];
      sprintf(command,"cp %s %-s/.kgclock/beep.wav",flname,getenv("HOME"));
      printf("%s\n",command);
-     system(command);
+     RVAL = system(command);
   }
 
   switch(key) {
@@ -1023,7 +1030,7 @@ int  ConfigDiabutnbox4callback(int key,int i,void *Tmp) {
      char command[500];
      sprintf(command,"cp %s %-s/.kgclock/phone.wav",flname,getenv("HOME"));
      printf("%s\n",command);
-     system(command);
+     RVAL = system(command);
   }
 
   switch(key) {
@@ -1326,7 +1333,7 @@ int ConfigDia( void *parent,void **v,void *pt) {
     butncode5,
     NULL,ConfigDiabutnbox2callback, /* args, Callbak */
     xpm5,bkgr5, /* pointers to xpms and colors */
-      2,0.250000 /* button type and roundinfg factor(0-0.5) */
+      6,0.50000 /* button type and roundinfg factor(0-0.5) */
   };
   char *titles6[]  = { 
     (char *)"!f35) !f23Beep Sound", 
@@ -1357,7 +1364,7 @@ int ConfigDia( void *parent,void **v,void *pt) {
     butncode6,
     NULL,ConfigDiabutnbox3callback, /* args, Callbak */
     xpm6,bkgr6, /* pointers to xpms and colors */
-      2,0.250000 /* button type and roundinfg factor(0-0.5) */
+      6,0.50000 /* button type and roundinfg factor(0-0.5) */
   };
   char *titles7[]  = { 
     (char *)"!f35% !f23Ring Sound", 
@@ -1388,7 +1395,7 @@ int ConfigDia( void *parent,void **v,void *pt) {
     butncode7,
     NULL,ConfigDiabutnbox4callback, /* args, Callbak */
     xpm7,bkgr7, /* pointers to xpms and colors */
-      2,0.250000 /* button type and roundinfg factor(0-0.5) */
+      6,0.50000 /* button type and roundinfg factor(0-0.5) */
   };
   char *titles8[]  = { 
     (char *)"!c15Hour Arm Color", 
@@ -1419,7 +1426,7 @@ int ConfigDia( void *parent,void **v,void *pt) {
     butncode8,
     NULL,ConfigDiabutnbox5callback, /* args, Callbak */
     xpm8,bkgr8, /* pointers to xpms and colors */
-      2,0.250000 /* button type and roundinfg factor(0-0.5) */
+      6,0.50000 /* button type and roundinfg factor(0-0.5) */
   };
   char *titles9[]  = { 
     (char *)"!c15Minute Arm Color", 
@@ -1450,7 +1457,7 @@ int ConfigDia( void *parent,void **v,void *pt) {
     butncode9,
     NULL,ConfigDiabutnbox6callback, /* args, Callbak */
     xpm9,bkgr9, /* pointers to xpms and colors */
-      2,0.250000 /* button type and roundinfg factor(0-0.5) */
+      5,0.50000 /* button type and roundinfg factor(0-0.5) */
   };
   char *titles10[]  = { 
     (char *)"!c15Second Arm Color", 
@@ -1481,7 +1488,7 @@ int ConfigDia( void *parent,void **v,void *pt) {
     butncode10,
     NULL,ConfigDiabutnbox7callback, /* args, Callbak */
     xpm10,bkgr10, /* pointers to xpms and colors */
-      2,0.250000 /* button type and roundinfg factor(0-0.5) */
+      6,0.50000 /* button type and roundinfg factor(0-0.5) */
   };
   char *titles11[]  = { 
     (char *)"Dot Color", 
@@ -1512,7 +1519,7 @@ int ConfigDia( void *parent,void **v,void *pt) {
     butncode11,
     NULL,ConfigDiabutnbox8callback, /* args, Callbak */
     xpm11,bkgr11, /* pointers to xpms and colors */
-      2,0.250000 /* button type and roundinfg factor(0-0.5) */
+      6,0.50000 /* button type and roundinfg factor(0-0.5) */
   };
 
   DIM m12 = { 
@@ -1589,7 +1596,7 @@ int ConfigDia( void *parent,void **v,void *pt) {
   D.butattn = 0;    /*  1 for drawing button attention */
   D.fullscreen = 0;    /*  1 for for fullscreen mode */
   D.Deco = 1;    /*  1 for Window Decorration */
-  D.transparency = 0.150000;    /*  float 1.0 for full transparency */
+  D.transparency = 0.0000;    /*  float 1.0 for full transparency */
   D.Newwin = 1;    /*  1 for new window not yet implemented */
   D.DrawBkgr = 1;    /*  1 for drawing background */
   D.Bkpixmap = NULL;    /*  background image */
@@ -1621,7 +1628,7 @@ int ConfigDia( void *parent,void **v,void *pt) {
   if(D.parent != NULL) {
     D.gc = ((DIALOG *)D.parent)->gc;
   }
-  else kgColorTheme(&D,Red,Green,Blue);
+//  else kgColorTheme(&D,Red,Green,Blue);
 //  kgColorTheme(&D,210,210,210);    /*  set colors for gui*/
 //  ModifyConfigDiaGc(&(D.gc));    /*  set colors for gui*/
   ret= kgUi(&D);
@@ -1715,7 +1722,7 @@ void InstallClock(char *kgclock) {
      if(!kgCheckMenu(NULL,100,200,(char *)"No TureColor Support for Display/Driver: Continue?",0)) exit(0);
   }
 #endif
-   RunInstallDia(NULL);
+   Rval = RunInstallDia(NULL);
    if(kgCheckMenu(NULL,100,200,(char *)"Install a AUTOSTART entry for !f34!z43kgclock?",0)){
      strcpy(flname,getenv("HOME"));
      strcat(flname,"/.config");
@@ -1788,9 +1795,9 @@ int KillOtherJobs(char *name) {
    while(!Okay) {
      pp = popen("ps -e","r");
      if(pp==NULL) return 0;
-     fgets(buff,299,pp);
+     Rpt = fgets(buff,299,pp);
      Okay =1;
-     fgets(buff,299,pp);
+     Rpt = fgets(buff,299,pp);
      while( fgets(buff,299,pp) != NULL) {
         sscanf(buff,"%d%s%s%s",&Id,tty,dummy,program);
         if(strcmp(pt,program)==0) {
@@ -1830,13 +1837,13 @@ int main(int argc,char **argv) {
   strcat(flname,"/Config");
   fp = fopen(flname,"r");
   if(fp != NULL) {
-    fscanf(fp,"%d%d%d%f",&Type,&Shadow,&Nosecarm,&scalefac);
-    fscanf(fp,"%d%d%d%d",&ShDate,&Xpos,&Ypos,&DateFont);
-    fscanf(fp,"%d%d%d",&Dred,&Dgreen,&Dblue);
-    fscanf(fp,"%d%d%d",&Hred,&Hgreen,&Hblue);
-    fscanf(fp,"%d%d%d",&Mred,&Mgreen,&Mblue);
-    fscanf(fp,"%d%d%d",&Sred,&Sgreen,&Sblue);
-    fscanf(fp,"%d%d%d",&Tred,&Tgreen,&Tblue);
+    RVAL = fscanf(fp,"%d%d%d%f",&Type,&Shadow,&Nosecarm,&scalefac);
+    RVAL = fscanf(fp,"%d%d%d%d",&ShDate,&Xpos,&Ypos,&DateFont);
+    RVAL = fscanf(fp,"%d%d%d",&Dred,&Dgreen,&Dblue);
+    RVAL = fscanf(fp,"%d%d%d",&Hred,&Hgreen,&Hblue);
+    RVAL = fscanf(fp,"%d%d%d",&Mred,&Mgreen,&Mblue);
+    RVAL = fscanf(fp,"%d%d%d",&Sred,&Sgreen,&Sblue);
+    RVAL = fscanf(fp,"%d%d%d",&Tred,&Tgreen,&Tblue);
     if(scalefac < 0.2 ) scalefac=0.2;
     if(Nosecarm) TIMERESO=NOSECARMRESO;
     else TIMERESO=1;
@@ -1922,13 +1929,13 @@ int main(int argc,char **argv) {
      printf("RESTART = %d %x\n",RESTART,status);
      fp = fopen(flname,"r");
      if(fp != NULL) {
-         fscanf(fp,"%d%d%d%f",&Type,&Shadow,&Nosecarm,&scalefac);
-         fscanf(fp,"%d%d%d%d",&ShDate,&Xpos,&Ypos,&DateFont);
-         fscanf(fp,"%d%d%d",&Dred,&Dgreen,&Dblue);
-         fscanf(fp,"%d%d%d",&Hred,&Hgreen,&Hblue);
-         fscanf(fp,"%d%d%d",&Mred,&Mgreen,&Mblue);
-         fscanf(fp,"%d%d%d",&Sred,&Sgreen,&Sblue);
-         fscanf(fp,"%d%d%d",&Tred,&Tgreen,&Tblue);
+         RVAL = fscanf(fp,"%d%d%d%f",&Type,&Shadow,&Nosecarm,&scalefac);
+         RVAL = fscanf(fp,"%d%d%d%d",&ShDate,&Xpos,&Ypos,&DateFont);
+         RVAL = fscanf(fp,"%d%d%d",&Dred,&Dgreen,&Dblue);
+         RVAL = fscanf(fp,"%d%d%d",&Hred,&Hgreen,&Hblue);
+         RVAL = fscanf(fp,"%d%d%d",&Mred,&Mgreen,&Mblue);
+         RVAL = fscanf(fp,"%d%d%d",&Sred,&Sgreen,&Sblue);
+         RVAL = fscanf(fp,"%d%d%d",&Tred,&Tgreen,&Tblue);
          if(scalefac < 0.2 ) scalefac=0.2;
          if( Nosecarm==1) TIMERESO=NOSECARMRESO;
          else TIMERESO=1;

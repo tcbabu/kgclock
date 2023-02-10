@@ -43,11 +43,17 @@
 extern cst_lexicon cmu_lex;
 void cmu_lex_init();
 
-static void lookup_and_print(cst_lexicon *l,const char *word,const char *feats)
+static void lookup_and_print(cst_lexicon *l,const char *word,const char *pos)
 {
     cst_val *p;
 
-    p = lex_lookup(l,word,feats);
+    p = lex_lookup(l,word,pos,NULL);
+    val_print(stdout,p);
+    printf("\n");
+    if (l->lts_function)
+        p = l->lts_function(l,word,pos,NULL);
+    else if (l->lts_rule_set)
+        p = lts_apply(word,"",l->lts_rule_set);
     val_print(stdout,p);
     printf("\n");
     delete_val(p);

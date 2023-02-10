@@ -1,5 +1,4 @@
-#include "kulina.h"
-#include "kulina.h"
+#include <kulina.h>
 #include "methan.c"
 extern unsigned int Red,Green,Blue;
 void * setnotify(void *arg);
@@ -165,6 +164,7 @@ int DelActionDia( void *parent ,void *v0 ,char **menu0) {
   d[0].x = &e0;
   d[1].H = &H1;
   d[2].t = NULL;
+  kgInitUi(&D);
   D.d = d;
   D.bkup = 1; /* set to 1 for backup */
   D.bor_type = 0;
@@ -214,7 +214,7 @@ int DelActionDia( void *parent ,void *v0 ,char **menu0) {
   if(D.parent != NULL) {
     D.gc = ((DIALOG *)D.parent)->gc;
   }
-  else kgColorTheme(&D,Red,Green,Blue);
+//  else kgColorTheme(&D,Red,Green,Blue);
   D.SearchList=NULL;
   ret= kgUi(&D);
   kgFreeDouble((void **)(D.pt));
@@ -349,7 +349,7 @@ int ShowActionsDia( void *parent ,char **menu0) {
   if(D.parent != NULL) {
     D.gc = ((DIALOG *)D.parent)->gc;
   }
-  else kgColorTheme(&D,Red,Green,Blue);
+//  else kgColorTheme(&D,Red,Green,Blue);
 //  kgColorTheme(&D,230,230,230);
   D.SearchList=NULL;
   ret= kgUi(&D);
@@ -707,7 +707,7 @@ int SetAlertDia( void *parent,void **v,void *pt) {
   if(D.parent != NULL) {
     D.gc = ((DIALOG *)D.parent)->gc;
   }
-  else kgColorTheme(&D,Red,Green,Blue);
+//  else kgColorTheme(&D,Red,Green,Blue);
   D.SearchList=NULL;
   ret= kgUi(&D);
   kgCleanUi(&D);
@@ -854,7 +854,7 @@ int SetAlertDia_o( void *parent ,void *v0 ) {
   if(D.parent != NULL) {
     D.gc = ((DIALOG *)D.parent)->gc;
   }
-  else kgColorTheme(&D,Red,Green,Blue);
+//  else kgColorTheme(&D,Red,Green,Blue);
 //  kgColorTheme(&D,230,230,230);    /*  set colors for gui*/
 //  ModifySetAlertDiaGc(&(D.gc));    /*  set colors for gui*/
   D.SearchList=NULL;
@@ -868,14 +868,15 @@ void *RunSetAlertDia(void *arg) {
     Buttonbox1 (new) 1 data value
 
 *************************************************/
+   int ret;
    int   v0 = 1;
    void* v[1];
    v[0]=(void *)(&v0);
 //   printf("Calling SetAlertDia\n");
 #if 0
-   SetAlertDia_o(NULL,v );
+   ret = SetAlertDia_o(NULL,v );
 #else
-   SetAlertDia(NULL,v ,NULL);
+   ret = SetAlertDia(NULL,v ,NULL);
 #endif
 //   printf("SetAlertDia Okay\n");
    return NULL;

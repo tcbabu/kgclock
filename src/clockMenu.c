@@ -198,6 +198,7 @@ int clockMenu( void *parent,void **v,void *pt) {
   D.d=NULL;
   GrpId = clockMenuGroup(&D,v,pt);
   d = D.d;
+  kgInitUi(&D);
   D.d = d;
   D.bkup = 1; /* set to 1 for backup */
   D.bor_type = 0;
@@ -292,8 +293,9 @@ int RunclockMenu(void *arg) {
    void* v[1];
    v[0]=(void *)(&v0);
    void *pt=NULL; /* pointer to send any extra information */
+   int ret;
    RetVal =1;
-   clockMenu(NULL,v,pt );
+   ret = clockMenu(NULL,v,pt );
 //   printf("clockMenu over\n");
 //   fflush(stdout);
    return RESTART;

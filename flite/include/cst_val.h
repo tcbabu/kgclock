@@ -46,6 +46,8 @@
 #include "cst_alloc.h"
 #include "cst_val_defs.h"
 
+#include <stdint.h>
+
 /* Only CONS can be an even number */
 #define CST_VAL_TYPE_CONS    0
 #define CST_VAL_TYPE_INT     1
@@ -61,10 +63,15 @@ typedef struct  cst_val_cons_struct {
 
 typedef struct  cst_val_atom_struct {
 #ifdef WORDS_BIGENDIAN
+#if UINTPTR_MAX > 0xfffffffful
+    int ref_count;
+    int type;  /* order is here important */
+#else
     short ref_count;
     short type;  /* order is here important */
+#endif
 #else
-#if (defined(__x86_64__) || defined(_M_X64))
+#if UINTPTR_MAX > 0xfffffffful
     int type;  /* order is here important */
     int ref_count;
 #else
@@ -74,7 +81,7 @@ typedef struct  cst_val_atom_struct {
 #endif
     union 
     {
-#if (defined(__x86_64__) || defined(_M_X64))
+#if UINTPTR_MAX > 0xfffffffful
         double fval;
         long long ival;
         void *vval;
@@ -149,7 +156,7 @@ void val_print(cst_file fd,const cst_val *v);
 cst_val *val_readlist_string(const char *str);
 
 cst_val *val_reverse(cst_val *v);
-cst_val *val_append(cst_val *a,cst_val *b);
+cst_val *val_append(cst_val *a,cst_val *b); /* destructive */
 int val_length(const cst_val *l);
 cst_val *cst_utf8_explode(const cst_string *utf8string);
 cst_string *cst_implode(const cst_val *string_list);

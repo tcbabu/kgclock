@@ -2,7 +2,7 @@
 /*                                                                       */
 /*                  Language Technologies Institute                      */
 /*                     Carnegie Mellon University                        */
-/*                      Copyright (c) 1999-2007                          */
+/*                      Copyright (c) 1999-2015                          */
 /*                        All Rights Reserved.                           */
 /*                                                                       */
 /*  Permission is hereby granted, free of charge, to use and distribute  */
@@ -48,6 +48,10 @@
 extern cst_cg_db __VOICENAME___cg_db;
 cst_voice *__VOICENAME___cg = NULL;
 
+#ifdef CG_GRAPHEME
+extern const cst_phoneset __VOICENAME___phoneset;
+#endif
+
 cst_voice *register___VOICENAME__(const char *voxdir)
 {
     cst_voice *vox;
@@ -65,10 +69,21 @@ cst_voice *register___VOICENAME__(const char *voxdir)
     /* Things that weren't filled in already. */
     flite_feat_set_string(vox->features,"name","__VOICENAME__");
 
+    /* Voice specific features from ../etc/voice.feats */
+#include "__VOICENAME___voice_feats.c"
+
     /* Lexicon */
     lex = __FLITELEX___init();
     flite_feat_set(vox->features,"lexicon",lexicon_val(lex));
     flite_feat_set(vox->features,"postlex_func",uttfunc_val(lex->postlex));
+
+#ifdef CG_GRAPHEME
+    /* If grapheme link in grapheme specific info */
+    if (feat_present(vox->features,"grapheme"))
+    {
+        flite_feat_set(vox->features,"phoneset",phoneset_val(&__VOICENAME___phoneset));
+    }
+#endif
 
     /* No standard segment durations are needed as its done at the */
     /* HMM state level */

@@ -2,6 +2,10 @@
 @c %**start of header
 @setfilename flite.info
 @settitle Flite: a small, fast speech synthesis engine
+@dircategory sound
+@direntry
+flite: (flite). a small, fast speech synthesis engine
+@end direntry
 @finalout
 @setchapternewpage odd
 @c %**end of header
@@ -812,9 +816,9 @@ distribution, the example diphone voice is @code{cmu_us_kal}.
 
 Here is a simple C program that uses the flite library
 @example
-#include "flite.h"
+#include <flite/flite.h>
 
-register_cmu_us_kal();
+cst_voice * register_cmu_us_kal(const char *voxdir);
 
 int main(int argc, char **argv)
 @{

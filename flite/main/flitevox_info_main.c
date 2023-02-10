@@ -46,7 +46,11 @@
 #include "cst_args.h"
 #include "flite.h"
 
+#ifdef WASM32_WASI
+void flite_set_lang_list(void);
+#else
 void *flite_set_lang_list(void);
+#endif
 
 int main(int argc, char **argv)
 {
@@ -94,6 +98,8 @@ int main(int argc, char **argv)
         /* set the feature */
         feat_set_string(v->features,feat,feat_string(args,"-val"));
 
+        /*        printf("awb_debug: setting %s %s\n",feat,
+                  feat_string(v->features,feat)); */
         /* save the voice back out again */
         flite_voice_dump(v,voice_name);
     }
@@ -102,6 +108,9 @@ int main(int argc, char **argv)
         feat = get_param_string(args,"-get","feat");
         printf("%s \"%s\"\n",feat,feat_string(v->features,feat));
     }
+
+    delete_voice(v);
+    delete_features(args);
 
     return 0;
 

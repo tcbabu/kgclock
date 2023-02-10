@@ -34,12 +34,20 @@
 ##  Top level user programs                                              ##
 ##                                                                       ##
 ###########################################################################
+# MacOS does not accept -pd options to the cp command
+    UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Darwin)
+CP_FLAGS='-r'
+else
+CP_FLAGS='-pd'
+endif
 TOP=..
 DIRNAME=main
 BUILD_DIRS = 
 ALL_DIRS= 
 SRCS = main.c flite_main.c flite_time_main.c t2p_main.c compile_regexes.c \
-       flitevox_info_main.c
+       flitevox_info_main.c word_times_main.c
+#      world_main.c 
 OBJS = $(SRCS:.c=.o) flite_voice_list.o 
 FILES = Makefile $(SRCS)
 LOCAL_INCLUDES = 
@@ -53,7 +61,8 @@ ALL = shared_libs \
 VOICES=$(VOXES)
 VOICELIBS=$(VOICES:%=flite_%)
 
-flite_LIBS = $(VOICELIBS) $(LANGS:%=flite_%) $(LEXES:%=flite_%) flite
+flite_MODS = $(VOICELIBS) $(LANGS:%=flite_%) $(LEXES:%=flite_%) 
+flite_LIBS = $(flite_MODS) flite
 
 flite_LIBS_flags = -L$(LIBDIR) $(flite_LIBS:%=-l%)
 flite_LIBS_deps = $(flite_LIBS:%=$(LIBDIR)/lib%.a)
@@ -64,6 +73,10 @@ include $(TOP)/config/common_make_rules
 # so make clean can remove them
 SHAREDARLIBS= $(flite_LIBS:%=$(LIBDIR)/lib%.shared.a)
 SHAREDLIBS = $(SHAREDARLIBS:%.shared.a=%.so)
+SHAREDMODS = $(flite_MODS:%=$(LIBDIR)/lib%.so)
+SHAREDusenMODS = $(LIBDIR)/libflite_cmu_time_awb.so $(LIBDIR)/libflite_cmu_us_awb.so $(LIBDIR)/libflite_cmu_us_kal16.so $(LIBDIR)/libflite_cmu_us_kal.so $(LIBDIR)/libflite_cmu_us_rms.so $(LIBDIR)/libflite_cmu_us_slt.so $(LIBDIR)/libflite_cmu_indic_lang.so
+SHAREDcmulexMODS = $(LIBDIR)/libflite_cmu_time_awb.so $(LIBDIR)/libflite_cmu_us_awb.so $(LIBDIR)/libflite_cmu_us_kal16.so $(LIBDIR)/libflite_cmu_us_kal.so $(LIBDIR)/libflite_cmu_us_rms.so $(LIBDIR)/libflite_cmu_us_slt.so  $(LIBDIR)/libflite_cmu_indic_lex.so
+SHAREDindicMODS = $(LIBDIR)/libflite_cmu_indic_lex.so
 VERSIONSHAREDLIBS = $(SHAREDLIBS:%=%.${PROJECT_VERSION}) \
                     $(SHAREDLIBS:%=%.${PROJECT_SHLIB_VERSION})
 
@@ -78,7 +91,14 @@ LOCAL_CLEAN = $(BINDIR)/flite$(EXEEXT) $(BINDIR)/flite_time$(EXEEXT) \
               flite_voice_list.c
 
 ifdef SHFLAGS
-flite_LIBS_flags += -Wl,-rpath $(LIBDIR) 
+$(SHAREDMODS): $(LIBDIR)/libflite.so
+$(SHAREDMODS): LDFLAGS+=-L../$(LIBDIR) -lflite
+$(SHAREDusenMODS): $(LIBDIR)/libflite_usenglish.so
+$(SHAREDusenMODS): LDFLAGS+=-L../$(LIBDIR) -lflite_usenglish
+$(SHAREDcmulexMODS): $(LIBDIR)/libflite_cmulex.so
+$(SHAREDcmulexMODS): LDFLAGS+=-L../$(LIBDIR) -lflite_cmulex
+$(SHAREDindicMODS): $(LIBDIR)/libflite_cmu_indic_lang.so
+$(SHAREDindicMODS): LDFLAGS+=-L../$(LIBDIR) -lflite_cmu_indic_lang
 shared_libs: $(SHAREDLIBS)
 else
 shared_libs: nothing
@@ -103,11 +123,17 @@ $(BINDIR)/flitevox_info$(EXEEXT): flitevox_info_main.o flite_lang_list $(flite_L
 	$(MAKE) flite_voice_list.o
 	$(CC) $(CFLAGS) -o $@ flitevox_info_main.o flite_voice_list.o flite_lang_list.o $(flite_LIBS_flags) $(LDFLAGS)
 
+$(BINDIR)/world$(EXEEXT): world_main.c
+	$(CC) $(CFLAGS) -o $@ world_main.c -I../include -I../src/world $(flite_LIBS_flags) $(world_LIBS_flags) -lworld $(LDFLAGS)
+
 $(BINDIR)/flite_time$(EXEEXT): flite_time_main.o $(flite_time_LIBS_deps)
 	$(CC) $(CFLAGS) -o $@ flite_time_main.o $(flite_time_LIBS_flags) $(FLITELIBFLAGS) $(LDFLAGS) 
 
 $(BINDIR)/t2p$(EXEEXT): t2p_main.o $(flite_LIBS_deps)
 	$(CC) $(CFLAGS) -o $@ t2p_main.o $(flite_LIBS_flags) $(LDFLAGS)
+
+$(BINDIR)/word_times$(EXEEXT): word_times_main.o $(flite_LIBS_deps)
+	$(CC) $(CFLAGS) -o $@ word_times_main.o $(flite_LIBS_flags) $(LDFLAGS)
 
 $(BINDIR)/compile_regexes$(EXEEXT): compile_regexes.o $(FLITELIBS)
 	$(CC) $(CFLAGS) -o $@ compile_regexes.o $(FLITELIBFLAGS) $(LDFLAGS)
@@ -133,8 +159,8 @@ install:
 	done
 	$(INSTALL) -m 755 $(BINDIR)/flite_time $(DESTDIR)$(INSTALLBINDIR)
 #       The libraries: static and shared (if built)
-	cp -pd $(flite_LIBS_deps) $(DESTDIR)$(INSTALLLIBDIR)
+	cp $(CP_FLAGS) $(flite_LIBS_deps) $(DESTDIR)$(INSTALLLIBDIR)
 ifdef SHFLAGS
-	cp -pd $(SHAREDLIBS) $(VERSIONSHAREDLIBS) $(DESTDIR)$(INSTALLLIBDIR)
+	cp $(CP_FLAGS) $(SHAREDLIBS) $(VERSIONSHAREDLIBS) $(DESTDIR)$(INSTALLLIBDIR)
 endif
 

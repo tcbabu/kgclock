@@ -111,6 +111,8 @@
 
 #include "cst_val_defs.h"
 
+#include <stdint.h>
+
 /* There is built-in int to string conversions here for numbers   */
 /* up to 20, note if you make this bigger you have to hand change */
 /* other things too                                               */
@@ -123,7 +125,7 @@
 #define DEF_CONST_VAL_INT(N,V) const cst_val N = {{.a={.type=CST_VAL_TYPE_INT,.ref_count=-1,.v={.ival=V}}}}
 #define DEF_CONST_VAL_STRING(N,S) const cst_val N = {{.a={.type=CST_VAL_TYPE_STRING,.ref_count=-1,.v={.vval= (void *)S}}}}
 #define DEF_CONST_VAL_FLOAT(N,F) const cst_val N = {{.a={.type=CST_VAL_TYPE_FLOAT,.ref_count=-1,.v={.fval=F}}}}
-#define DEF_CONST_VAL_CONS(N,A,D) const cst_val N = {{.cc={.car=A,.cdr=D }}}
+#define DEF_CONST_VAL_CONS(N,A,D) const cst_val N = {{.cc={.car=(cst_val *)A,.cdr=(cst_val *)D }}}
 
 extern const cst_val val_int_0; 
 extern const cst_val val_int_1; 
@@ -191,10 +193,15 @@ extern const cst_val val_string_24;
 /* unquestionably doing the wrong thing                                 */
 typedef struct cst_val_atom_struct_float {
 #ifdef WORDS_BIGENDIAN
+#if UINTPTR_MAX > 0xfffffffful
+    int ref_count;
+    int type;  /* order is here important */
+#else
     short ref_count;
     short type;  /* order is here important */
+#endif
 #else
-#if (defined(__x86_64__) || defined(_M_X64))
+#if UINTPTR_MAX > 0xfffffffful
     int type;  /* order is here important */
     int ref_count;
 #else
@@ -202,7 +209,7 @@ typedef struct cst_val_atom_struct_float {
     short ref_count;
 #endif
 #endif
-#if (defined(__x86_64__) || defined(_M_X64))
+#if UINTPTR_MAX > 0xfffffffful
     double fval;
 #else
     float fval;
@@ -211,10 +218,15 @@ typedef struct cst_val_atom_struct_float {
 
 typedef struct cst_val_atom_struct_int {
 #ifdef WORDS_BIGENDIAN
+#if UINTPTR_MAX > 0xfffffffful
+    int ref_count;
+    int type;  /* order is here important (and unintuitive) */
+#else
     short ref_count;
     short type;  /* order is here important (and unintuitive) */
+#endif
 #else
-#if (defined(__x86_64__) || defined(_M_X64))
+#if UINTPTR_MAX > 0xfffffffful
     int type;  /* order is here important */
     int ref_count;
 #else
@@ -222,7 +234,7 @@ typedef struct cst_val_atom_struct_int {
     short ref_count;
 #endif
 #endif
-#if (defined(__x86_64__) || defined(_M_X64))
+#if UINTPTR_MAX > 0xfffffffful
     long long ival;
 #else
     int ival;
@@ -231,10 +243,15 @@ typedef struct cst_val_atom_struct_int {
 
 typedef struct cst_val_atom_struct_void {
 #ifdef WORDS_BIGENDIAN
+#if UINTPTR_MAX > 0xfffffffful
+    int ref_count;
+    int type;  /* order is here important */
+#else
     short ref_count;
     short type;  /* order is here important */
+#endif
 #else
-#if (defined(__x86_64__) || defined(_M_X64))
+#if UINTPTR_MAX > 0xfffffffful
     int type;  /* order is here important */
     int ref_count;
 #else

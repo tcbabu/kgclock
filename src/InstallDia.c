@@ -1,7 +1,11 @@
 #include <pthread.h>
-#include "kulina.h"
+#include <kulina.h>
 extern unsigned int Red,Green,Blue;
 void * SplashThread(void * msg);
+#define System(cmd) { \
+  int rval; \
+  rval = system(cmd); \
+}
 int InstallDiainit(void *Tmp) {
   SPLASHMSG msg;
   pthread_t Pth;
@@ -16,7 +20,10 @@ int InstallDiainit(void *Tmp) {
     msg.xsize=600;
     msg.ysize=120;
     msg.xpm = NULL;
-    msg.message=(char *)"Display must support\nTrue Color and Alpha Channel";
+//TCB
+    msg.message = (char *) malloc(100);
+//    msg.message=(char *)"Display must support\nTrue Color and Alpha Channel";
+    strncpy(msg.message,(char *)"Display must support\nTrue Color and Alpha Channel",98);
     msg.font =16;
     msg.fontcolor=0;
     msg.bkcolor=0xc00f0f0f;
@@ -29,6 +36,7 @@ int InstallDiainit(void *Tmp) {
         kgUpdateOn(D);
         kgSplashDia(-1,-1,400,120,NULL,(char *)"Could not find 'aplay'\n no bell support",16,0,0xc00f0f0f);
     }
+    free(msg.message);
 #if 0
     res=kgWhich((char *)"festival");
     if(res!= NULL) {kgPrintf(D,0,res);free(res);}
@@ -45,23 +53,23 @@ int InstallDiainit(void *Tmp) {
     if(kgFolderBrowser(NULL,400,200,flname,(char *)"*.wav")){
       sprintf(command,"cp %-s %-s/.kgclock/beep.wav",flname,getenv("HOME"));
 //      printf("%s\n",command);
-      system(command);
+      System(command);
     }
     kgPrintf(D,0,(char *)"Pl select 'wav' file for bell sound");
     kgUpdateOn(D);
     flname[0]='\0';
     if(kgFolderBrowser(NULL,400,200,flname,(char *)"*.wav")){
       sprintf(command,"cp %-s %-s/.kgclock/phone.wav",flname,getenv("HOME"));
-      system(command);
+      System(command);
     }
 #else
       
       sprintf(command,"mkdir -p   %-s/.kgclock",getenv("HOME"));
-      system(command);
+      System(command);
       sprintf(command,"cp /usr/share/kgclock/beep.wav  %-s/.kgclock/beep.wav",getenv("HOME"));
-      system(command);
+      System(command);
       sprintf(command,"cp /usr/share/kgclock/bell.wav  %-s/.kgclock/phone.wav",getenv("HOME"));
-      system(command);
+      System(command);
 #endif
 //    pthread_join(Pth,NULL);
   return ret;
@@ -140,7 +148,7 @@ int InstallDia( void *parent ) {
   if(D.parent != NULL) {
     D.gc = ((DIALOG *)D.parent)->gc;
   }
-  else kgColorTheme(&D,Red,Green,Blue);
+//  else kgColorTheme(&D,Red,Green,Blue);
   ret= kgUi(&D);
   return ret;
 }
