@@ -26,8 +26,8 @@ DLLWRAP  =
 SIZE     = 
 STRIP    = 
 
-AUDIODRIVER = alsa
-AUDIODEFS   = -DCST_AUDIO_ALSA
+AUDIODRIVER = oss
+AUDIODEFS   = -DCST_AUDIO_LINUX
 AUDIOLIBS   = -lasound
 
 LEXDEFS = 
@@ -47,7 +47,7 @@ langvox = default
 
 include $(TOP)/config/$(langvox).lv
 
-prefix        = /home/babu/BUILD/kgclock-1.2
+prefix        = /home/kulina/BUILD/kgclock-1.2
 exec_prefix   = ${prefix}
 EXEEXT	      = 
 INSTALLBINDIR = ${exec_prefix}/bin
