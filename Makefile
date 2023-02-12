@@ -24,8 +24,16 @@ install	: kgclock
 		install -m 644  bell.wav  /usr/share/kgclock
 		install -m 644  beep.wav  /usr/share/kgclock
 		install -m 644  kgclock.desktop /usr/share/applications
+
+tarball	: kgclock
+	  install -m 755 -s  kgclock  TARBALL
+	  mv TARBALL kgclock-1.2
+	  tar czf kgclock-1.2.tgz kgclock-1.2
+	  rm -f kgclock-1.2/kgclock
+	  mv kgclock-1.2 TARBALL
 clean	:
 	 rm -f *.o kgclock
 	 make -C src clean
 	 make -C flite clean
 	 rm -rf bin lib include buildflite
+	 rm -f kgclock-1.2.tgz
