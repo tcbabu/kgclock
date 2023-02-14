@@ -29,6 +29,7 @@ static int Curmin=0;
 static int Update=1;
 static int Wait=10;
 extern int RVAL;
+char *PLAYER=NULL;
 typedef struct _ntfy {
 	long day;
 	int hr;
@@ -296,15 +297,51 @@ static int runfestival(char *arg){
      return 1;
    }
 }
+static int setplayer(){
+	char *rem;
+	rem = kgWhich("paplay");
+	if(rem != NULL) {
+		PLAYER=rem;
+		return 1;
+	}
+	else {
+		rem = kgWhich("kgmplayer");
+		if(rem != NULL) {
+		  PLAYER=rem;
+		  return 1;
+		}
+		else {
+		  rem = kgWhich("mplayer");
+		  if(rem != NULL) {
+		    PLAYER=rem;
+		    return 1;
+		  }
+		  else {
+		    rem = kgWhich("aplay");
+		    if(rem != NULL) {
+		      PLAYER=rem;
+		      return 1;
+		    }
+		    else {
+			    return 0;
+		    }
+		  }
+		}
+	}
+}
 
 static int runaplay(char *arg){
    int pid,status;
    char buff[300];
    static char *pgrpath=NULL;
    static int entry=0;
+   
    if(entry==0) {
      entry =1;
-     pgrpath=kgWhich((char *)"aplay");
+     setplayer();
+     pgrpath=PLAYER;
+     printf( "PLAYER: %s \n",PLAYER);
+     fflush(stdout);
    }
    if (pgrpath==NULL) return 0;
    pid = fork();
@@ -312,13 +349,15 @@ static int runaplay(char *arg){
      if(fork()!=0) exit(0); /* to avoid zombie */
      if(arg[0] != '/') {
          strcpy(buff,Pgpath);
+	 strcat(buff,"  ");
          strcat(buff,arg);
      }
      else {
+	 strcat(buff,"  ");
          strcpy(buff,arg);
      }
-     execl(pgrpath,"aplay",buff,NULL);
-     fprintf(stderr,"Failed to execute aplay\n");
+     execl(pgrpath,PLAYER,buff,NULL);
+     fprintf(stderr,"Failed to execute player\n");
      sleep(5);
      exit(1);
    }
@@ -329,7 +368,11 @@ static int runaplay(char *arg){
 }
 static int PlayWav(char *wav) {
 	char comm[1000];
-	strcpy(comm,"aplay -q ");
+	if(PLAYER==NULL) setplayer();
+	if(PLAYER==NULL) return 0;
+//	strcpy(comm,"aplay -q ");
+        strcpy(comm,PLAYER);
+        strcat(comm,"  ");
 	strcat(comm,wav);
 	System(comm);
 }
@@ -415,14 +458,22 @@ static int PlayFile(char *file){
 }
 static int Ring(void) {
 	char comm[1000];
-	strcpy(comm,"aplay -q ");
+	if(PLAYER== NULL) setplayer();
+	if(PLAYER==NULL) return 0;
+//	strcpy(comm,"aplay -q ");
+        strcpy(comm,PLAYER);
+        strcat(comm,"  ");
 	strcat(comm,Pgpath);
 	strcat(comm,"phone.wav");
 	System(comm);
 }
 static int Beep(void) {
 	char comm[1000];
-	strcpy(comm,"aplay -q ");
+	if(PLAYER== NULL) setplayer();
+	if(PLAYER==NULL) return 0;
+//	strcpy(comm,"aplay -q ");
+        strcpy(comm,PLAYER);
+        strcat(comm,"  ");
 	strcat(comm,Pgpath);
 	strcat(comm,"beep.wav");
 	System(comm);

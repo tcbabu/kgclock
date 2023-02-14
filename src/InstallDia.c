@@ -29,12 +29,15 @@ int InstallDiainit(void *Tmp) {
     msg.bkcolor=0xc00f0f0f;
 //    pthread_create(&Pth,NULL,SplashThread,&msg);
     kgPrintf(D,0,(char *)"Making $HOME/.kgclock");
-    res=kgWhich((char *)"aplay");
+    res=kgWhich((char *)"paplay");
+    if(res==NULL) res=kgWhich((char *)"kgmplayer");
+    if(res==NULL) res=kgWhich((char *)"mplayer");
+    if(res==NULL) res=kgWhich((char *)"aplay");
     if(res!= NULL) {kgPrintf(D,0,res);free(res);}
     else {
-        kgPrintf(D,0,(char *)"Could not find 'aplay' no bell support");
+        kgPrintf(D,0,(char *)"Could not find a player' no bell support");
         kgUpdateOn(D);
-        kgSplashDia(-1,-1,400,120,NULL,(char *)"Could not find 'aplay'\n no bell support",16,0,0xc00f0f0f);
+        kgSplashDia(-1,-1,400,120,NULL,(char *)"Could not find a 'player'\n no bell support",16,0,0xc00f0f0f);
     }
     free(msg.message);
 #if 0
