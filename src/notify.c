@@ -773,7 +773,9 @@ void * TakeActions(void *arg) {
 //          if(Ntfy[i].status==0) {i++;continue;}
 	  if(Day >= Ntfy[i].day){ 
 	      minutes = Ntfy[i].hr*60+Ntfy[i].min;
-	      if(Curmin > minutes){
+	      if((Curmin > minutes)&&(Curmin< (minutes+10))){
+                 system("xset dpms force on");
+		 sleep(2);
 		 switch(Ntfy[i].code){
 		   case 'R':
                      Unlock;
@@ -836,6 +838,8 @@ void * TakeActions(void *arg) {
 	    if(Day == Ntfy[i].day) {
 	      minutes = Ntfy[i].hr*60+Ntfy[i].min;
 	      if(Curmin == minutes){
+                 system("xset dpms force on");
+		 sleep(2);
 		 switch(Ntfy[i].code){
 		   case 'R':
                      UpdateAction(Ntfy+i);
