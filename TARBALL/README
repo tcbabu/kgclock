@@ -8,6 +8,7 @@ are self explanatory (hopefully). Clarifications if any can be obtained
 from the developer at tcbabu@gmail.com.
 
 For installation do the following
+Latest update brings up display for alarms/Notifications
 
 install -m 755 -s  kgclock  /usr/bin/kgclock
 mkdir -p /usr/share/kgclock
