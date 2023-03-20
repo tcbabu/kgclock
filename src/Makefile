@@ -23,17 +23,17 @@ install	: kgclock
 		install -m 644  kgclock.desktop /usr/share/applications
 clean	:
 	 rm -f *.o kgclock
-clockpgr.o	: clockpgr.c images.c kulina.h
+clockpgr.o	: clockpgr.c images.c 
 	 $(CC) -O3 -c clockpgr.c
-notify.o	: notify.c  kulina.h
+notify.o	: notify.c  
 	 $(CC) -O3 -c notify.c
-setnotify.o	: setnotify.c  kulina.h
+setnotify.o	: setnotify.c  
 	 $(CC) -O3 -c setnotify.c
-setAlertDia.o	: setAlertDia.c  kulina.h
+setAlertDia.o	: setAlertDia.c  
 	 $(CC) -O3 -c setAlertDia.c
-InstallDia.o	: InstallDia.c  kulina.h
+InstallDia.o	: InstallDia.c  
 	 $(CC) -O3 -c InstallDia.c
-ShowDateDia.o	: ShowDateDia.c  kulina.h
+ShowDateDia.o	: ShowDateDia.c  
 	 $(CC) -O3 -c ShowDateDia.c
-clockMenu.o	: clockMenu.c  kulina.h
+clockMenu.o	: clockMenu.c  
 	 $(CC) -O3 -c clockMenu.c
