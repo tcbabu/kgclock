@@ -9,14 +9,14 @@ HOST_OS    = linux-gnu
 HOST_CPU   = x86_64
 
 CC       = gcc
-CFLAGS   = -g -O2 -Wall 
+CFLAGS   = -I/home/kulina/BUILD/kgmplayer/include -Wall 
 CPPFLAGS = 
 SHFLAGS  = 
-LDFLAGS  = 
+LDFLAGS  = -L/home/kulina/BUILD/kgmplayer/lib
 
 AR       = ar
 RANLIB   = ranlib
-INSTALL  = /bin/install -c
+INSTALL  = /usr/bin/install -c
 NM       = 
 
 M68KCC   = 
