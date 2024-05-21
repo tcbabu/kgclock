@@ -9,14 +9,14 @@ HOST_OS    = linux-gnu
 HOST_CPU   = x86_64
 
 CC       = gcc
-CFLAGS   = -I/home/kulina/BUILD/kgmplayer/include -Wall 
+CFLAGS   = -g -O2 -Wall 
 CPPFLAGS = 
 SHFLAGS  = 
-LDFLAGS  = -L/home/kulina/BUILD/kgmplayer/lib
+LDFLAGS  = 
 
 AR       = ar
 RANLIB   = ranlib
-INSTALL  = /usr/bin/install -c
+INSTALL  = /bin/install -c
 NM       = 
 
 M68KCC   = 
@@ -26,8 +26,8 @@ DLLWRAP  =
 SIZE     = 
 STRIP    = 
 
-AUDIODRIVER = oss
-AUDIODEFS   = -DCST_AUDIO_LINUX
+AUDIODRIVER = alsa
+AUDIODEFS   = -DCST_AUDIO_ALSA
 AUDIOLIBS   = -lasound
 
 LEXDEFS = 

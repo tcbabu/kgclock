@@ -38,6 +38,7 @@
 /*                                                                       */
 /*************************************************************************/
 
+#include <string.h>
 #include "cst_tokenstream.h"
 #include "flite.h"
 #include "cst_alloc.h"
@@ -148,14 +149,17 @@ cst_voice *flite_voice_select(const char *name)
     for (v=flite_voice_list; v; v=val_cdr(v))
     {
         voice = val_voice(val_car(v));
-        if (cst_streq(name,voice->name))  /* short name */
+        if (cst_streq(name,voice->name)) {/* short name */
             return voice;
-        if (cst_streq(name,get_param_string(voice->features,"name","")))
+	}
+        if (cst_streq(name,get_param_string(voice->features,"name",""))) {
             /* longer name */
             return voice;
-        if (cst_streq(name,get_param_string(voice->features,"pathname","")))
+	}
+        if (cst_streq(name,get_param_string(voice->features,"pathname",""))){
             /* even longer name (url) */
             return voice;
+	}
     }
 
     if (cst_urlp(name) || /* naive check if its a url */

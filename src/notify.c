@@ -382,9 +382,8 @@ static int runflite(char *arg){
    if(pid == 0) { /* child process */
      if(fork()!=0) exit(0); /* to avoid zombie */
      else {
-       char buff[300];
-       sprintf(buff,"flite -t \"%-s\" -o /tmp/%-d.wav -voice"
-          " slt",arg,getpid()); 
+       char buff[500];
+       sprintf(buff,"flite -voicedir /usr/share/kgclock/voices -voice /usr/share/kgclock/voices/cmu_us_rxr.flitevox -t \"hellow: %-s\"  -o /tmp/%-d.wav ",arg,getpid()); 
        runfunction(buff,NULL,flite);
        sprintf(buff,"/tmp/%-d.wav" ,getpid());
        PlayWav(buff);
@@ -784,7 +783,7 @@ void * TakeActions(void *arg) {
 		     break;
 		   case 'M':
                      Unlock;
-		     Beep();
+//		     Beep();
                      SayText(Ntfy[i].msg);
                      Lock;
 		     break;
@@ -850,7 +849,7 @@ void * TakeActions(void *arg) {
 		   case 'M':
                      UpdateAction(Ntfy+i);
                      Unlock;
-		     Beep();
+//		     Beep();
                      SayText(Ntfy[i].msg);
                      Lock;
 		     break;

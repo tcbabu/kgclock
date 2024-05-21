@@ -369,7 +369,7 @@ int flite(int argc, char **argv)
     if (flite_voice_list == NULL)
         flite_set_voice_list(voicedir);
     if (desired_voice == 0)
-        desired_voice = flite_voice_select(NULL);
+        desired_voice = flite_voice_select(NULL);  //NULL to rms by TCB
 
     v = desired_voice;
     feat_copy_into(extra_feats,v->features);
