@@ -23,7 +23,7 @@ install	: kgclock
 		install -m 644  kgbell2.wav  /usr/share/kgclock
 		install -m 644  bell.wav  /usr/share/kgclock
 		install -m 644  beep.wav  /usr/share/kgclock
-		install -m 655  -d voices   /usr/share/kgclock/
+		cp -rf voices    /usr/share/kgclock/
 		install -m 644  kgclock.desktop /usr/share/applications
 
 tarball	: kgclock
