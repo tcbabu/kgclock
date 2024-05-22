@@ -4348,34 +4348,6 @@ fi
 
 
 AUDIODRIVER=none
-ac_fn_c_check_header_mongrel "$LINENO" "sys/soundcard.h" "ac_cv_header_sys_soundcard_h" "$ac_includes_default"
-if test "x$ac_cv_header_sys_soundcard_h" = xyes; then :
-  AUDIODRIVER="oss"
-               AUDIODEFS=-DCST_AUDIO_LINUX
-fi
-
-
-ac_fn_c_check_header_mongrel "$LINENO" "machine/soundcard.h" "ac_cv_header_machine_soundcard_h" "$ac_includes_default"
-if test "x$ac_cv_header_machine_soundcard_h" = xyes; then :
-  AUDIODRIVER="oss"
-               AUDIODEFS=-DCST_AUDIO_FREEBSD
-fi
-
-
-ac_fn_c_check_header_mongrel "$LINENO" "sys/audioio.h" "ac_cv_header_sys_audioio_h" "$ac_includes_default"
-if test "x$ac_cv_header_sys_audioio_h" = xyes; then :
-  AUDIODRIVER="sun"
-               AUDIODEFS=-DCST_AUDIO_SUNOS
-fi
-
-
-# We're going to make alsa the default now, if supported
-ac_fn_c_check_header_mongrel "$LINENO" "alsa/asoundlib.h" "ac_cv_header_alsa_asoundlib_h" "$ac_includes_default"
-if test "x$ac_cv_header_alsa_asoundlib_h" = xyes; then :
-  AUDIODRIVER="alsa"
-	       AUDIODEFS=-DCST_AUDIO_ALSA
-               AUDIOLIBS=-lasound
-fi
 
 
 ac_fn_c_check_header_compile "$LINENO" "mmsystem.h" "ac_cv_header_mmsystem_h" "#include <windows.h>

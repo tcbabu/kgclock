@@ -292,215 +292,13 @@ configure:4303: checking for mmap
 configure:4303: gcc -o conftest -g -O2 -Wall   conftest.c  >&5
 configure:4303: $? = 0
 configure:4303: result: yes
-configure:4351: checking sys/soundcard.h usability
-configure:4351: gcc -c -g -O2 -Wall  conftest.c >&5
-configure:4351: $? = 0
-configure:4351: result: yes
-configure:4351: checking sys/soundcard.h presence
-configure:4351: gcc -E  conftest.c
-configure:4351: $? = 0
-configure:4351: result: yes
-configure:4351: checking for sys/soundcard.h
-configure:4351: result: yes
-configure:4358: checking machine/soundcard.h usability
-configure:4358: gcc -c -g -O2 -Wall  conftest.c >&5
-conftest.c:52:10: fatal error: machine/soundcard.h: No such file or directory
-   52 | #include <machine/soundcard.h>
-      |          ^~~~~~~~~~~~~~~~~~~~~
-compilation terminated.
-configure:4358: $? = 1
-configure: failed program was:
-| /* confdefs.h */
-| #define PACKAGE_NAME ""
-| #define PACKAGE_TARNAME ""
-| #define PACKAGE_VERSION ""
-| #define PACKAGE_STRING ""
-| #define PACKAGE_BUGREPORT ""
-| #define PACKAGE_URL ""
-| #define STDC_HEADERS 1
-| #define HAVE_SYS_TYPES_H 1
-| #define HAVE_SYS_STAT_H 1
-| #define HAVE_STDLIB_H 1
-| #define HAVE_STRING_H 1
-| #define HAVE_MEMORY_H 1
-| #define HAVE_STRINGS_H 1
-| #define HAVE_INTTYPES_H 1
-| #define HAVE_STDINT_H 1
-| #define HAVE_UNISTD_H 1
-| /* end confdefs.h.  */
-| #include <stdio.h>
-| #ifdef HAVE_SYS_TYPES_H
-| # include <sys/types.h>
-| #endif
-| #ifdef HAVE_SYS_STAT_H
-| # include <sys/stat.h>
-| #endif
-| #ifdef STDC_HEADERS
-| # include <stdlib.h>
-| # include <stddef.h>
-| #else
-| # ifdef HAVE_STDLIB_H
-| #  include <stdlib.h>
-| # endif
-| #endif
-| #ifdef HAVE_STRING_H
-| # if !defined STDC_HEADERS && defined HAVE_MEMORY_H
-| #  include <memory.h>
-| # endif
-| # include <string.h>
-| #endif
-| #ifdef HAVE_STRINGS_H
-| # include <strings.h>
-| #endif
-| #ifdef HAVE_INTTYPES_H
-| # include <inttypes.h>
-| #endif
-| #ifdef HAVE_STDINT_H
-| # include <stdint.h>
-| #endif
-| #ifdef HAVE_UNISTD_H
-| # include <unistd.h>
-| #endif
-| #include <machine/soundcard.h>
-configure:4358: result: no
-configure:4358: checking machine/soundcard.h presence
-configure:4358: gcc -E  conftest.c
-conftest.c:19:10: fatal error: machine/soundcard.h: No such file or directory
-   19 | #include <machine/soundcard.h>
-      |          ^~~~~~~~~~~~~~~~~~~~~
-compilation terminated.
-configure:4358: $? = 1
-configure: failed program was:
-| /* confdefs.h */
-| #define PACKAGE_NAME ""
-| #define PACKAGE_TARNAME ""
-| #define PACKAGE_VERSION ""
-| #define PACKAGE_STRING ""
-| #define PACKAGE_BUGREPORT ""
-| #define PACKAGE_URL ""
-| #define STDC_HEADERS 1
-| #define HAVE_SYS_TYPES_H 1
-| #define HAVE_SYS_STAT_H 1
-| #define HAVE_STDLIB_H 1
-| #define HAVE_STRING_H 1
-| #define HAVE_MEMORY_H 1
-| #define HAVE_STRINGS_H 1
-| #define HAVE_INTTYPES_H 1
-| #define HAVE_STDINT_H 1
-| #define HAVE_UNISTD_H 1
-| /* end confdefs.h.  */
-| #include <machine/soundcard.h>
-configure:4358: result: no
-configure:4358: checking for machine/soundcard.h
-configure:4358: result: no
-configure:4365: checking sys/audioio.h usability
-configure:4365: gcc -c -g -O2 -Wall  conftest.c >&5
-conftest.c:52:10: fatal error: sys/audioio.h: No such file or directory
-   52 | #include <sys/audioio.h>
-      |          ^~~~~~~~~~~~~~~
-compilation terminated.
-configure:4365: $? = 1
-configure: failed program was:
-| /* confdefs.h */
-| #define PACKAGE_NAME ""
-| #define PACKAGE_TARNAME ""
-| #define PACKAGE_VERSION ""
-| #define PACKAGE_STRING ""
-| #define PACKAGE_BUGREPORT ""
-| #define PACKAGE_URL ""
-| #define STDC_HEADERS 1
-| #define HAVE_SYS_TYPES_H 1
-| #define HAVE_SYS_STAT_H 1
-| #define HAVE_STDLIB_H 1
-| #define HAVE_STRING_H 1
-| #define HAVE_MEMORY_H 1
-| #define HAVE_STRINGS_H 1
-| #define HAVE_INTTYPES_H 1
-| #define HAVE_STDINT_H 1
-| #define HAVE_UNISTD_H 1
-| /* end confdefs.h.  */
-| #include <stdio.h>
-| #ifdef HAVE_SYS_TYPES_H
-| # include <sys/types.h>
-| #endif
-| #ifdef HAVE_SYS_STAT_H
-| # include <sys/stat.h>
-| #endif
-| #ifdef STDC_HEADERS
-| # include <stdlib.h>
-| # include <stddef.h>
-| #else
-| # ifdef HAVE_STDLIB_H
-| #  include <stdlib.h>
-| # endif
-| #endif
-| #ifdef HAVE_STRING_H
-| # if !defined STDC_HEADERS && defined HAVE_MEMORY_H
-| #  include <memory.h>
-| # endif
-| # include <string.h>
-| #endif
-| #ifdef HAVE_STRINGS_H
-| # include <strings.h>
-| #endif
-| #ifdef HAVE_INTTYPES_H
-| # include <inttypes.h>
-| #endif
-| #ifdef HAVE_STDINT_H
-| # include <stdint.h>
-| #endif
-| #ifdef HAVE_UNISTD_H
-| # include <unistd.h>
-| #endif
-| #include <sys/audioio.h>
-configure:4365: result: no
-configure:4365: checking sys/audioio.h presence
-configure:4365: gcc -E  conftest.c
-conftest.c:19:10: fatal error: sys/audioio.h: No such file or directory
-   19 | #include <sys/audioio.h>
-      |          ^~~~~~~~~~~~~~~
-compilation terminated.
-configure:4365: $? = 1
-configure: failed program was:
-| /* confdefs.h */
-| #define PACKAGE_NAME ""
-| #define PACKAGE_TARNAME ""
-| #define PACKAGE_VERSION ""
-| #define PACKAGE_STRING ""
-| #define PACKAGE_BUGREPORT ""
-| #define PACKAGE_URL ""
-| #define STDC_HEADERS 1
-| #define HAVE_SYS_TYPES_H 1
-| #define HAVE_SYS_STAT_H 1
-| #define HAVE_STDLIB_H 1
-| #define HAVE_STRING_H 1
-| #define HAVE_MEMORY_H 1
-| #define HAVE_STRINGS_H 1
-| #define HAVE_INTTYPES_H 1
-| #define HAVE_STDINT_H 1
-| #define HAVE_UNISTD_H 1
-| /* end confdefs.h.  */
-| #include <sys/audioio.h>
-configure:4365: result: no
-configure:4365: checking for sys/audioio.h
-configure:4365: result: no
-configure:4373: checking alsa/asoundlib.h usability
-configure:4373: gcc -c -g -O2 -Wall  conftest.c >&5
-configure:4373: $? = 0
-configure:4373: result: yes
-configure:4373: checking alsa/asoundlib.h presence
-configure:4373: gcc -E  conftest.c
-configure:4373: $? = 0
-configure:4373: result: yes
-configure:4373: checking for alsa/asoundlib.h
-configure:4373: result: yes
-configure:4381: checking for mmsystem.h
-configure:4381: gcc -c -g -O2 -Wall  conftest.c >&5
+configure:4353: checking for mmsystem.h
+configure:4353: gcc -c -g -O2 -Wall  conftest.c >&5
 conftest.c:19:10: fatal error: windows.h: No such file or directory
    19 | #include <windows.h>
       |          ^~~~~~~~~~~
 compilation terminated.
-configure:4381: $? = 1
+configure:4353: $? = 1
 configure: failed program was:
 | /* confdefs.h */
 | #define PACKAGE_NAME ""
@@ -523,8 +321,8 @@ configure: failed program was:
 | #include <windows.h>
 | 
 | #include <mmsystem.h>
-configure:4381: result: no
-configure:4640: creating ./config.status
+configure:4353: result: no
+configure:4612: creating ./config.status
 
 ## ---------------------- ##
 ## Running config.status. ##
@@ -570,9 +368,7 @@ ac_cv_env_host_alias_value=
 ac_cv_env_target_alias_set=
 ac_cv_env_target_alias_value=
 ac_cv_func_mmap=yes
-ac_cv_header_alsa_asoundlib_h=yes
 ac_cv_header_inttypes_h=yes
-ac_cv_header_machine_soundcard_h=no
 ac_cv_header_memory_h=yes
 ac_cv_header_mmsystem_h=no
 ac_cv_header_stdc=yes
@@ -580,8 +376,6 @@ ac_cv_header_stdint_h=yes
 ac_cv_header_stdlib_h=yes
 ac_cv_header_string_h=yes
 ac_cv_header_strings_h=yes
-ac_cv_header_sys_audioio_h=no
-ac_cv_header_sys_soundcard_h=yes
 ac_cv_header_sys_stat_h=yes
 ac_cv_header_sys_types_h=yes
 ac_cv_header_unistd_h=yes
@@ -603,9 +397,9 @@ ac_cv_target=x86_64-unknown-linux-gnu
 ## ----------------- ##
 
 AR='ar'
-AUDIODEFS='-DCST_AUDIO_ALSA'
-AUDIODRIVER='alsa'
-AUDIOLIBS='-lasound'
+AUDIODEFS='-DCST_AUDIO_NONE'
+AUDIODRIVER='none'
+AUDIOLIBS=''
 CC='gcc'
 CFLAGS='-g -O2 -Wall'
 CPP='gcc -E'

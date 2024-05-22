@@ -10,7 +10,7 @@ kgclock	: clockpgr.o  SetAlertDia.o notify.o setnotify.o  InstallDia.o ShowDateD
 	 -lflite_cmu_us_slt -lflite_cmulex -lflite_usenglish \
 	 -lflite_cmu_indic_lex -lflite_cmu_indic_lang \
 	 -lflite_cmu_grapheme_lang -lflite_cmu_grapheme_lex \
-	 ../lib/libflite.a  -lkulina -lgm   -lasound
+	 ../lib/libflite.a  -lkulina -lgm  
 install	: kgclock
 		install -m 755 -s  kgclock  /usr/bin/kgclock
 		mkdir -p /usr/share/kgclock
