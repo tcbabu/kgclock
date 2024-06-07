@@ -1261,7 +1261,7 @@ int ConfigDia( void *parent,void **v,void *pt) {
     64, 
     64, 
     1,1, 
-    1,0.150000,0,0,0,1, /* button type and roundinfg factor(0-0.5),bordr,hide ,nodrawbkgr*/
+    2,0.150000,0,0,0,1, /* button type and roundinfg factor(0-0.5),bordr,hide ,nodrawbkgr*/
  
     butn0, 
     clockbutnbutton1callback, /*  Callbak */
