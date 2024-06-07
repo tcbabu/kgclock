@@ -1,16 +1,17 @@
 KULINA=/usr
 CC	=cc  -pthread -I$(KULINA)/include -L$(KULINA)/lib
-kgclock	: clockpgr.o  SetAlertDia.o notify.o setnotify.o  InstallDia.o ShowDateDia.o clockMenu.o clockpic.o makeimage.o
+kgclock	: clockpgr.o  SetAlertDia.o notify.o setnotify.o  InstallDia.o ShowDateDia.o clockMenu.o clockpic.o makeimage.o clocktypeCallbacks.o clocktype.o 
 	 $(CC) -O3 -o kgclock clockpgr.o SetAlertDia.o notify.o \
 	 setnotify.o  InstallDia.o ShowDateDia.o clockMenu.o clockpic.o \
+	 clocktypeCallbacks.o clocktype.o \
 	 makeimage.o  ../flite/main/flite_main.o \
 	../flite/main/flite_voice_list.o \
-	../flite/main/flite_lang_list.o \
-	 -L/usr/X11R6/lib -lX11 -lXext -lm -lpthread  -L../lib  \
+	../flite/main/flite_lang_list.o -Wl,-rpath=/usr/share/kgclock/lib \
+	 -Wl,-Bstatic   -L../lib  \
 	 -lflite_cmu_us_slt -lflite_cmulex -lflite_usenglish \
 	 -lflite_cmu_indic_lex -lflite_cmu_indic_lang \
 	 -lflite_cmu_grapheme_lang -lflite_cmu_grapheme_lex \
-	 ../lib/libflite.a  -lkulina -lgm  
+	 ../lib/libflite.a  -lkulina -lgm -static-libgcc -Wl,-Bdynamic -L/usr/X11R6/lib -lX11 -lXext -lm -lpthread
 install	: kgclock
 		install -m 755 -s  kgclock  /usr/bin/kgclock
 		mkdir -p /usr/share/kgclock

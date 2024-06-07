@@ -29,7 +29,12 @@
 // timeresolution in secs
 pthread_mutex_t _Tmplock=PTHREAD_MUTEX_INITIALIZER;
 void RunSetAlertDia(void *);
+int Runclocktype(void *arg);
+int MakeclockbutnGroup(DIALOG *D,void *arg);
+int Runclocktype(void *);
+
 DIALOG *ClockD;
+int ClockType=0;
 int RESTART=0;
 int TIMERESO=1;
 int RVAL;
@@ -87,6 +92,39 @@ void DeleteAction(int item);
 int GetActionsCount(void);
 
 static void *Rval;
+void *GetClockImage(int no) {
+	switch(no) {
+		case 0:
+			return &clocknum_str;
+		case 1:
+			return &clocknum1_str;
+		case 2:
+			return &clocknum2_str;
+		case 3:
+			return &clocknum3_str;
+		case 4:
+			return &clocknum4_str;
+		case 5:
+			return &clocknum16_str;
+		case 6:
+			return &clocknum6_str;
+		case 7:
+			return &clocknum7_str;
+		case 8:
+			return &clocknum8_str;
+		case 9:
+			return &clocknum0_str;
+		case 10:
+			return &clocknum10_str;
+		case 11:
+			return &clocknum15_str;
+		case 12:
+			return &clocknum13_str;
+		default:
+			return NULL;
+
+	}
+}
 void *ShowDate(void *arg) {
   int xl,yl;
   char buff[200];
@@ -1104,6 +1142,28 @@ int ConfigDiainit(void *Tmp) {
   D = (DIALOG *)Tmp;
   return ret;
 }
+int  clockbutnbutton1callback(int butno,int i,void *Tmp) {
+  /*********************************** 
+    butno : selected item (1 to max_item) 
+    i :  Index of Widget  (0 to max_widgets-1) 
+    Tmp :  Pointer to DIALOG  
+   ***********************************/ 
+  DIALOG *D;DIN *B; 
+  int n,ret =0; 
+  D = (DIALOG *)Tmp;
+  B = (DIN *)kgGetWidget(Tmp,i);
+  n = B->nx*B->ny;
+  ClockType =  Runclocktype(NULL)-1;
+  kgChangeButtonNormalImage(B,0,GetClockImage(ClockType));
+  kgUpdateWidget(B);
+  switch(butno) {
+    case 1: 
+      break;
+  }
+  return ret;
+}
+void  clockbutnbutton1init(DIN *B,void *pt) {
+}
 int ConfigDiaCallBack(void *Tmp,void *tmp) {
   int ret = 0;
   DIALOG *D;
@@ -1148,6 +1208,7 @@ int ConfigDia( void *parent,void **v,void *pt) {
   int ret=1;
   DIALOG D;
   DIA d[15];
+#if 0
   char *menu0[]  = { 
     (char *)"Type1",
     (char *)"Type2",
@@ -1175,10 +1236,44 @@ int ConfigDia( void *parent,void **v,void *pt) {
     NULL,NULL, /* *args, callback */
     0 
   };
+#else
+  BUT_STR  *butn0=NULL; 
+  butn0= (BUT_STR *)malloc(sizeof(BUT_STR)*1);
+  butn0[0].sw=1;
+  strcpy(butn0[0].title,(char *)"");
+  butn0[0].xpmn=NULL;
+  butn0[0].xpmp=NULL;
+  butn0[0].xpmh=NULL;
+#if 0
+  butn0[0].xpmn= (char *)malloc(100); 
+  strcpy(butn0[0].xpmn,(char *)"##/home/kulina/Documents/clock10.png");
+#else
+//  butn0[0].xpmn= kgGetProcessedImage("##/home/kulina/Documents/clock10.png",64,0.8,0,0,0);
+  butn0[0].xpmn= GetClockImage(ClockType);
+#endif
+  butn0[0].bkgr=-1;
+  butn0[0].butncode='';
+  DIN b0 = { 
+    'n',
+    204,39,  
+    278,113,
+    2,2,  
+    64, 
+    64, 
+    1,1, 
+    1,0.150000,0,0,0,1, /* button type and roundinfg factor(0-0.5),bordr,hide ,nodrawbkgr*/
+ 
+    butn0, 
+    clockbutnbutton1callback, /*  Callbak */
+      NULL  /* any args */
+  };
+  strcpy(b0.Wid,(char *)"clocktype");
+  b0.item = -1;
+#endif
   DIF f1 = { 
     'f',
-    209,85,  
-    353,132,   
+    209,105,  
+    353,152,   
     0.250000,1.000000,  
     100,  
     (double *)v[1],
@@ -1295,8 +1390,8 @@ int ConfigDia( void *parent,void **v,void *pt) {
   };
   DIW w4 = { 
     'w',
-    59,185,  
-    420,212,   
+    59,190,  
+    420,217,   
     8,  
     (int *)v[3],
     (char *)"Date Font" ,
@@ -1539,8 +1634,8 @@ int ConfigDia( void *parent,void **v,void *pt) {
   ThumbNail **th0 ;
   DICH c13 = { 
     'c',
-    60,140,  
-    442,173,   
+    60,150,  
+    442,183,   
 //    99,0,  
 //    109,0,  
     115,0,  
@@ -1562,7 +1657,8 @@ int ConfigDia( void *parent,void **v,void *pt) {
    };
   th0 = (ThumbNail **)kgStringToThumbNails((char **)menu13);
   c13.list=(void **)th0;
-  d[0].w = &w0;
+//  d[0].w = &w0;
+  d[0].N = &b0;
   d[1].f = &f1;
   d[2].H = &H2;
   d[3].b = &n3;
@@ -1671,6 +1767,7 @@ void *RunConfigDia(void *arg) {
    DIR *dir;
    FILE *fp;
    v0=Type+1;
+   ClockType = Type;
    v1= scalefac;
    v3 = DateFont+1;
 
@@ -1689,7 +1786,9 @@ void *RunConfigDia(void *arg) {
 
    void *pt=NULL; /* pointer to send any extra information */
    ConfigDia(NULL,v,pt );
-   Type = v0-1;
+//   Type = v0-1;
+   Type = ClockType;
+//   Type =  Runclocktype(NULL)-1;
    scalefac=v1;
    strcpy(flname,getenv("HOME"));
    strcat(flname,"/.kgclock");
