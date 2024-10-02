@@ -144,7 +144,7 @@ int clockMenuGroup( DIALOG *D,void **v,void *pt) {
     NULL,clockMenubrowser1callback, /* *args, callback */
     20,4,22,1,0,0,0 
   };
-  strcpy(e1.Wid,(char *)"");
+  strcpy(e1.Wid,(char *)"Menu");
   e1.item = -1;
   dtmp = D->d;
   i=0;

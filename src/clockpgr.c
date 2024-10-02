@@ -1252,7 +1252,7 @@ int ConfigDia( void *parent,void **v,void *pt) {
   butn0[0].xpmn= GetClockImage(ClockType);
 #endif
   butn0[0].bkgr=-1;
-  butn0[0].butncode='';
+  butn0[0].butncode=127;
   DIN b0 = { 
     'n',
     204,39,  
@@ -1346,8 +1346,9 @@ int ConfigDia( void *parent,void **v,void *pt) {
     butncode3,
     NULL,ConfigDiabutnbox1callback, /* args, Callbak */
     xpm3,bkgr3, /* pointers to xpms and colors */
-      4,0.500000 /* button type and roundinfg factor(0-0.5) */
+      2,0.500000 /* button type and roundinfg factor(0-0.5) */
   };
+#if 0
   char *menu4[]  = { 
     (char *)"!f1800 !f00 Times-Roman",
     (char *)"!f1801 !f01 Times-Italic",
@@ -1388,6 +1389,46 @@ int ConfigDia( void *parent,void **v,void *pt) {
     (char *)"!f1836 !f36 Symbol",
     NULL 
   };
+#else 
+  char *menu4[]  = { 
+    (char *)"00 Times-Roman",
+    (char *)"01 Times-Italic",
+    (char *)"02 Times-Bold",
+    (char *)"03 Times-BoldItalic",
+    (char *)"04 Bookman-Light",
+    (char *)"05 Bookman-LightItalic",
+    (char *)"06 Bookman-Demi",
+    (char *)"07 Bookman-DemiItalic",
+    (char *)"08 Helvetica",
+    (char *)"09 Helvetica-Oblique",
+    (char *)"10 Helvetica-Bold",
+    (char *)"11 Helvetica-BoldOblique",
+    (char *)"12 Helvetica-Narrow",
+    (char *)"13 Helvetica-Narrow-Oblique",
+    (char *)"14 Helvetica-Narrow-Bold",
+    (char *)"15 Helvetica-Narrow-BoldOblique",
+    (char *)"16 Courier",
+    (char *)"17 Courier-Oblique",
+    (char *)"18 Courier-Bold",
+    (char *)"19 Courier-BoldOblique",
+    (char *)"20 Charter-Roman",
+    (char *)"21 Charter-Italic",
+    (char *)"22 Charter-Bold",
+    (char *)"23 Charter-BoldItalic",
+    (char *)"24 Palatino-Roman",
+    (char *)"25 Palatino-Italic",
+    (char *)"26 Palatino-Bold",
+    (char *)"27 Palatino-BoldItalic",
+    (char *)"28 NewCenturySchlbk-Roman",
+    (char *)"29 NewCenturySchlbk-Italic",
+    (char *)"30 NewCenturySchlbk-Bold",
+    (char *)"31 NewCenturySchlbk-BoldItalic",
+    (char *)"32 AvantGarde-BookOblique",
+    (char *)"33 AvantGarde-Demi",
+    (char *)"34 ZapfChancery-MediumItalic",
+    NULL 
+  };
+#endif
   DIW w4 = { 
     'w',
     59,190,  
@@ -1431,7 +1472,7 @@ int ConfigDia( void *parent,void **v,void *pt) {
       6,0.50000 /* button type and roundinfg factor(0-0.5) */
   };
   char *titles6[]  = { 
-    (char *)"!f35) !f23Beep Sound", 
+    (char *)"!f23Beep Sound", 
     NULL
   };
   void *xpm6[]  = { 
@@ -1462,7 +1503,7 @@ int ConfigDia( void *parent,void **v,void *pt) {
       6,0.50000 /* button type and roundinfg factor(0-0.5) */
   };
   char *titles7[]  = { 
-    (char *)"!f35% !f23Ring Sound", 
+    (char *)"!f23Ring Sound", 
     NULL
   };
   void *xpm7[]  = { 
@@ -1586,7 +1627,7 @@ int ConfigDia( void *parent,void **v,void *pt) {
       6,0.50000 /* button type and roundinfg factor(0-0.5) */
   };
   char *titles11[]  = { 
-    (char *)"Dot Color", 
+    (char *)"!c15Dot Color", 
     NULL
   };
   void *xpm11[]  = { 
